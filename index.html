@@ -150,12 +150,32 @@
                 </div>
 
                 <div id="view-calendar" class="tab-content">
-                    <h2 class="text-2xl font-bold mb-4 hidden md:block">Kalender Akademik</h2>
-                    <div class="bg-white dark:bg-[#202020] border border-notion-border dark:border-notion-darkBorder rounded-xl p-4 md:p-6 shadow-sm">
-                         <div class="space-y-4" id="calendar-list">
-                            </div>
-                    </div>
+    <h2 class="text-2xl font-bold mb-4 hidden md:block">Kalender Akademik</h2>
+    
+    <div class="bg-white dark:bg-[#202020] border border-notion-border dark:border-notion-darkBorder rounded-xl p-4 md:p-6 shadow-sm">
+        
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="font-bold text-lg" id="cal-month-name">Februari 2026</h3>
+            <div class="flex gap-2 text-xs text-gray-500">
+                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-blue-100 border border-blue-500"></span> Event</span>
+                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-red-100 border border-red-500"></span> Deadline</span>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-7 gap-1 text-center mb-2 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+            <div>Min</div><div>Sen</div><div>Sel</div><div>Rab</div><div>Kam</div><div>Jum</div><div>Sab</div>
+        </div>
+        
+        <div id="calendar-grid" class="grid grid-cols-7 gap-1 md:gap-2 text-center text-sm mb-6">
+            </div>
+
+        <div class="pt-4 border-t border-notion-border dark:border-notion-darkBorder">
+            <h4 class="text-sm font-semibold mb-3 text-gray-500">Agenda Bulan Ini</h4>
+            <div id="calendar-agenda-list" class="space-y-3">
                 </div>
+        </div>
+    </div>
+</div>
 
                 <div id="view-files" class="tab-content">
                     <h2 class="text-2xl font-bold mb-6 hidden md:block">Google Drive Files</h2>
