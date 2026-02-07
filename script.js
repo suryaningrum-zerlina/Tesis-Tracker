@@ -140,45 +140,124 @@ function renderTasks() {
 }
 
 function renderCalendar() {
-    const container = document.getElementById('calendar-list');
-    if(!container) return;
+    const gridContainer = document.getElementById('calendar-grid');
+    const listContainer = document.getElementById('calendar-agenda-list');
+    const titleEl = document.getElementById('cal-month-name');
     
-    container.innerHTML = '';
-    let allItems = [];
-    
-    // Events
-    appData.events.forEach(e => allItems.push({date: e.Tanggal, title: e.Nama_Event, type: 'Event', color: 'blue'}));
-    // Tasks
-    appData.tasks.filter(t => t.Status !== 'Done').forEach(t => allItems.push({date: t.Deadline, title: t.Task, type: 'Deadline', color: 'red'}));
+    if(!gridContainer || !listContainer) return;
 
-    allItems.sort((a, b) => new Date(a.date) - new Date(b.date));
+    gridContainer.innerHTML = '';
+    listContainer.innerHTML = '';
 
-    // Group by Month (Optional, but simple list for now)
-    if(allItems.length === 0) {
-        container.innerHTML = '<div class="text-center text-gray-400 py-4">Belum ada agenda</div>';
-        return;
+    // 1. Setup Tanggal (Default: Bulan Sekarang)
+    const now = new Date();
+    const currentMonth = now.getMonth(); // 0-11
+    const currentYear = now.getFullYear();
+
+    // Nama Bulan Indonesia
+    const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+    if(titleEl) titleEl.innerText = `${monthNames[currentMonth]} ${currentYear}`;
+
+    // 2. Siapkan Data Events & Tasks agar mudah dicari berdasarkan tanggal
+    const mapData = {}; // Format: "YYYY-MM-DD": [Array of Items]
+
+    // Mapping Events
+    appData.events.forEach(e => {
+        if(!mapData[e.Tanggal]) mapData[e.Tanggal] = [];
+        mapData[e.Tanggal].push({ title: e.Nama_Event, type: 'event', color: 'blue' });
+    });
+
+    // Mapping Tasks (Deadline)
+    appData.tasks.filter(t => t.Status !== 'Done').forEach(t => {
+        if(!mapData[t.Deadline]) mapData[t.Deadline] = [];
+        mapData[t.Deadline].push({ title: t.Task, type: 'task', color: 'red' });
+    });
+
+    // 3. Render Grid Kalender
+    const firstDay = new Date(currentYear, currentMonth, 1).getDay(); // 0 (Sun) - 6 (Sat)
+    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate(); // 28/30/31
+
+    // Render Slot Kosong (sebelum tanggal 1)
+    for (let i = 0; i < firstDay; i++) {
+        gridContainer.insertAdjacentHTML('beforeend', `<div class="h-10 md:h-14"></div>`);
     }
 
-    allItems.forEach(item => {
-        const dateObj = new Date(item.date);
-        const dateNum = dateObj.getDate();
-        const month = dateObj.toLocaleString('default', { month: 'short' });
-        const colorClass = item.color === 'blue' ? 'text-blue-800 bg-blue-50 dark:text-blue-300 dark:bg-blue-900/20' : 'text-red-800 bg-red-50 dark:text-red-300 dark:bg-red-900/20';
+    // Render Tanggal 1 s/d Akhir
+    for (let day = 1; day <= daysInMonth; day++) {
+        // Format YYYY-MM-DD (Perhatikan timezone offset local)
+        // Cara aman buat string YYYY-MM-DD lokal:
+        const dateStr = `${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+        
+        const items = mapData[dateStr] || [];
+        const isToday = (day === now.getDate() && currentMonth === now.getMonth() && currentYear === now.getFullYear());
+        
+        // Style Dasar
+        let cellClass = "h-10 md:h-14 p-1 rounded flex flex-col items-center justify-start cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition relative";
+        let numClass = "text-sm";
+        
+        // Style Hari Ini
+        if(isToday) {
+            numClass = "w-6 h-6 flex items-center justify-center bg-black dark:bg-white text-white dark:text-black rounded-full font-bold shadow-md";
+        }
+
+        // Indikator Dots (Titik-titik di bawah tanggal)
+        let dotsHtml = '';
+        if(items.length > 0) {
+            dotsHtml = `<div class="flex gap-1 mt-1">`;
+            items.forEach(item => {
+                const dotColor = item.type === 'event' ? 'bg-blue-500' : 'bg-red-500';
+                dotsHtml += `<div class="w-1.5 h-1.5 rounded-full ${dotColor}"></div>`;
+            });
+            dotsHtml += `</div>`;
+        }
 
         const html = `
-            <div class="flex gap-4 items-center">
-                <div class="text-center w-12 ${colorClass} rounded p-1 shrink-0">
-                    <div class="text-[10px] uppercase font-bold opacity-70">${month}</div>
-                    <div class="text-xl font-bold leading-none">${dateNum}</div>
-                </div>
-                <div class="min-w-0">
-                    <p class="font-medium text-sm truncate">${item.title}</p>
-                    <p class="text-xs text-gray-500">${item.type}</p>
-                </div>
+            <div class="${cellClass}" onclick="alert('${dateStr}\\nAgenda: ${items.length}')">
+                <span class="${numClass}">${day}</span>
+                ${dotsHtml}
             </div>
         `;
-        container.insertAdjacentHTML('beforeend', html);
+        gridContainer.insertAdjacentHTML('beforeend', html);
+    }
+
+    // 4. Render Agenda List (Hanya menampilkan yang ada di bulan ini, diurutkan tanggal)
+    const sortedDates = Object.keys(mapData).sort();
+    let hasAgenda = false;
+
+    sortedDates.forEach(date => {
+        // Filter hanya bulan yang sedang ditampilkan
+        if(date.startsWith(`${currentYear}-${String(currentMonth+1).padStart(2,'0')}`)) {
+            hasAgenda = true;
+            const items = mapData[date];
+            const dateObj = new Date(date);
+            const dateNum = dateObj.getDate();
+            
+            items.forEach(item => {
+                const colorClass = item.type === 'event' 
+                    ? 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-900' 
+                    : 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-300 dark:border-red-900';
+                
+                const typeLabel = item.type === 'event' ? 'Event' : 'Deadline';
+
+                const listHtml = `
+                    <div class="flex gap-4 items-center p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-[#252525] transition">
+                        <div class="text-center w-12 h-12 flex flex-col items-center justify-center rounded-lg border ${colorClass}">
+                            <div class="text-xl font-bold leading-none">${dateNum}</div>
+                        </div>
+                        <div class="min-w-0">
+                            <p class="font-medium text-sm truncate">${item.title}</p>
+                            <p class="text-xs text-gray-500 capitalize">${typeLabel}</p>
+                        </div>
+                    </div>
+                `;
+                listContainer.insertAdjacentHTML('beforeend', listHtml);
+            });
+        }
     });
+
+    if(!hasAgenda) {
+        listContainer.innerHTML = `<div class="text-center text-gray-400 py-4 text-sm">Tidak ada agenda bulan ini.</div>`;
+    }
 }
 
 function renderFiles() {
