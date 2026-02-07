@@ -5,6 +5,7 @@ const API_URL = "https://script.google.com/macros/s/AKfycbxjPFCfjgfkGCZHCIJ6RKoN
 let appData = { roadmap: [], tasks: [], logs: [], events: [], files: [], heatmap: {}, profile: {} };
 let calendarState = { month: new Date().getMonth(), year: new Date().getFullYear() };
 let currentCompletingTask = null;
+let currentRoadmapItem = null;
 let pendingPhotoData = null;
 
 /* INIT */
@@ -35,73 +36,102 @@ function renderAll() {
     renderFiles();
 }
 
-/* RENDERERS */
+/* --- RENDERERS --- */
 
 function renderProfile() {
     const p = appData.profile || {};
     const name = p.name || "Mahasiswa";
     
-    // Header & Home
+    // Sidebar & Settings
     document.getElementById('sidebar-name').innerText = name;
     document.getElementById('sidebar-major').innerText = p.jurusan || "Universitas Indonesia";
-    document.getElementById('home-greeting').innerText = `Semangat ${name.split(' ')[0]}! 🎓`;
+    document.getElementById('home-name').innerText = name.split(' ')[0];
     document.getElementById('home-title').innerText = p.judul || "Judul Tesis...";
     
-    // Form
+    // Mobile Header
+    document.getElementById('header-subtitle').innerText = name + " | " + (p.judul || "Tesis");
+
+    // Inputs
     document.getElementById('prof-name').value = name;
     document.getElementById('prof-major').value = p.jurusan || "";
     document.getElementById('prof-title').value = p.judul || "";
 
-    // Avatar
+    // Photo
     const url = p.photo || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
     document.getElementById('sidebar-avatar').src = url;
     document.getElementById('settings-avatar').src = url;
 }
 
 function renderHome() {
-    // 1. Progress (Roadmap)
+    // 1. Progress from Roadmap Checklist
     const items = appData.roadmap || [];
-    const done = items.filter(i => i.Status === 'Selesai').length;
+    const done = items.filter(i => i.Status === 'Selesai' || i.Status === true).length;
     const total = items.length || 1;
     const pct = Math.round((done/total)*100);
     document.getElementById('progress-text').innerText = `${pct}%`;
     document.getElementById('progress-bar').style.width = `${pct}%`;
 
-    // 2. Heatmap
-    const hmContainer = document.getElementById('heatmap-container');
-    const labelContainer = document.getElementById('heatmap-months');
-    hmContainer.innerHTML = ''; 
-    labelContainer.innerHTML = '';
+    // 2. Total Hours
+    let totalMinutes = 0;
+    appData.logs.forEach(l => {
+        let d = parseInt(l[4] || l['Durasi (Menit)']); 
+        if (!isNaN(d)) totalMinutes += d;
+    });
+    const hours = (totalMinutes / 60).toFixed(1);
+    document.getElementById('total-hours').innerHTML = `${hours} <span class="text-sm font-normal text-gray-400">jam</span>`;
+
+    // 3. Heatmap (GitHub Style: 7 Rows x 20 Cols)
+    const container = document.getElementById('heatmap-container');
+    const monthContainer = document.getElementById('heatmap-months');
+    container.innerHTML = '';
+    monthContainer.innerHTML = '';
 
     const weeks = 20;
-    let lastLabel = "";
-    
+    const today = new Date();
+    // Cari hari Minggu terdekat di masa lalu dari (weeks) minggu lalu
+    const startDate = new Date();
+    startDate.setDate(today.getDate() - (weeks * 7) - today.getDay()); 
+
+    let lastMonth = "";
+
+    // Render 20 Kolom (Minggu)
     for(let w=0; w<weeks; w++) {
         const col = document.createElement('div');
         col.className = 'grid grid-rows-7 gap-1';
         
-        // Month Label Logic
-        const checkDate = new Date();
-        checkDate.setDate(checkDate.getDate() - ((weeks-1-w)*7));
-        const mLabel = checkDate.toLocaleString('default', {month:'short'});
-        if(mLabel !== lastLabel) {
-            lastLabel = mLabel;
+        // Cek tanggal hari pertama minggu ini untuk label bulan
+        const weekDate = new Date(startDate);
+        weekDate.setDate(startDate.getDate() + (w * 7));
+        const mLabel = weekDate.toLocaleString('default', {month:'short'});
+        
+        if (mLabel !== lastMonth) {
+            lastMonth = mLabel;
             const lbl = document.createElement('div');
             lbl.innerText = mLabel;
-            lbl.style.minWidth = '20px';
-            labelContainer.appendChild(lbl);
+            lbl.style.width = '16px'; // Lebar per kolom
+            monthContainer.appendChild(lbl);
         } else {
              const spc = document.createElement('div');
-             spc.style.minWidth = '16px'; 
-             labelContainer.appendChild(spc); // Spacer
+             spc.style.width = '16px'; 
+             monthContainer.appendChild(spc); 
         }
 
+        // Render 7 Hari (Senin-Minggu)
         for(let d=0; d<7; d++) {
-            const date = new Date();
-            date.setDate(date.getDate() - ((weeks-1-w)*7 + (6-d)));
-            const dateStr = date.toISOString().split('T')[0];
+            const currentDay = new Date(weekDate);
+            currentDay.setDate(weekDate.getDate() + d);
+            
+            // Skip jika lewat hari ini
+            if (currentDay > today) {
+                 const empty = document.createElement('div');
+                 empty.className = 'w-3 h-3';
+                 col.appendChild(empty);
+                 continue;
+            }
+
+            const dateStr = currentDay.toISOString().split('T')[0];
             const stat = appData.heatmap[dateStr];
-            let color = 'bg-gray-200 dark:bg-gray-800';
+            let color = 'bg-gray-100 dark:bg-gray-800';
             let title = `${dateStr}: 0`;
             
             if(stat) {
@@ -117,10 +147,10 @@ function renderHome() {
             box.title = title;
             col.appendChild(box);
         }
-        hmContainer.appendChild(col);
+        container.appendChild(col);
     }
-    
-    // 3. Recent Logs
+
+    // 4. Recent Logs
     const tbody = document.getElementById('recent-logs-body');
     tbody.innerHTML = '';
     appData.logs.slice(-5).reverse().forEach(log => {
@@ -131,7 +161,7 @@ function renderHome() {
 function renderRoadmap() {
     const container = document.getElementById('roadmap-container');
     container.innerHTML = '';
-    if(!appData.roadmap.length) { container.innerHTML = '<div class="text-center py-10 text-gray-400">Data Roadmap Kosong / Salah Header.</div>'; return; }
+    if(!appData.roadmap.length) { container.innerHTML = '<div class="text-center py-10 text-gray-400">Roadmap Kosong.</div>'; return; }
 
     const grouped = {};
     appData.roadmap.forEach(item => {
@@ -143,42 +173,88 @@ function renderRoadmap() {
     Object.keys(grouped).forEach(bab => {
         const items = grouped[bab];
         const isDone = items.every(i => i.Status === 'Selesai');
+        
         let subHtml = '';
         items.forEach(sub => {
-            const icon = sub.Status === 'Selesai' ? '✅' : '⬜';
-            const fileLink = sub['Link File'] ? `<a href="${sub['Link File']}" target="_blank" class="text-blue-500 text-xs">File ↗</a>` : '';
-            subHtml += `<div class="flex justify-between py-2 border-b border-gray-50 dark:border-gray-800 text-sm"><span class="truncate pr-2">${icon} ${sub['Sub-Bab']}</span>${fileLink}</div>`;
+            const subName = sub['Sub-Bab'] || 'Item';
+            const status = sub.Status;
+            const link = sub['Link File'];
+            
+            // Interactive Checkbox
+            const checkIcon = status === 'Selesai' ? '✅' : '⬜';
+            const nextStatus = status === 'Selesai' ? 'Belum Mulai' : 'Selesai';
+            
+            // Interactive Link
+            const linkColor = link ? 'text-blue-500' : 'text-gray-300';
+            const linkLabel = link ? 'Link ↗' : 'Add Link +';
+
+            subHtml += `
+                <div class="flex justify-between items-center py-3 border-b border-gray-100 dark:border-gray-800 text-sm last:border-0">
+                    <div class="flex items-center gap-3 cursor-pointer hover:opacity-70 truncate pr-2" onclick="toggleRoadmapStatus('${bab}', '${subName}', '${nextStatus}')">
+                        <span class="text-lg">${checkIcon}</span>
+                        <span>${subName}</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                         ${link ? `<a href="${link}" target="_blank" class="p-1 rounded bg-blue-50 text-blue-600 text-xs">Buka</a>` : ''}
+                         <button onclick="openLinkModal('${bab}', '${subName}')" class="text-xs ${linkColor} hover:text-black">🔗</button>
+                    </div>
+                </div>`;
         });
 
         container.innerHTML += `
-            <div class="bg-white dark:bg-[#202020] border border-notion-border dark:border-notion-darkBorder rounded-lg p-4">
-                <div class="flex justify-between items-center mb-2">
-                    <h3 class="font-bold text-md">📂 ${bab}</h3>
-                    <span class="text-xs px-2 py-1 rounded ${isDone ? 'bg-green-100 text-green-700':'bg-yellow-100 text-yellow-700'}">${isDone?'Selesai':'Proses'}</span>
+            <div class="bg-white dark:bg-[#202020] border border-notion-border dark:border-notion-darkBorder rounded-lg overflow-hidden">
+                <details open class="group">
+                    <summary class="flex justify-between items-center p-4 bg-gray-50 dark:bg-[#252525] cursor-pointer list-none">
+                        <h3 class="font-bold text-md">📂 ${bab}</h3>
+                        <span class="text-xs px-2 py-1 rounded ${isDone ? 'bg-green-100 text-green-700':'bg-yellow-100 text-yellow-700'}">${isDone?'Selesai':'Proses'}</span>
+                    </summary>
+                    <div class="px-4 pb-2">${subHtml}</div>
+                </details>
+            </div>`;
+    });
+}
+
+function renderTasks() {
+    const list = document.getElementById('task-list-container');
+    list.innerHTML = '';
+    appData.tasks.filter(t=>t.Status!=='Done').forEach(t => {
+        list.innerHTML += `
+            <div class="bg-white dark:bg-[#202020] border border-notion-border dark:border-notion-darkBorder rounded-lg p-3 flex items-center gap-3 shadow-sm hover:border-gray-400 transition">
+                <input type="checkbox" class="w-5 h-5 cursor-pointer accent-black" onclick="window.openCompleteModal('${t.ID}','${t.Task}','${t.Kategori}')">
+                <div class="flex-1">
+                    <div class="font-medium text-sm">${t.Task}</div>
+                    <div class="flex gap-2 mt-1">
+                        <span class="text-[10px] bg-gray-100 dark:bg-gray-700 px-1 rounded">📅 ${t.Deadline} ${t['Jam Deadline']||''}</span>
+                        <span class="text-[10px] bg-blue-50 text-blue-600 px-1 rounded">${t.Kategori}</span>
+                    </div>
                 </div>
-                <div>${subHtml}</div>
             </div>`;
     });
 }
 
 function renderCalendar(month, year) {
     const grid = document.getElementById('calendar-grid');
+    const agendaList = document.getElementById('calendar-agenda-list');
     const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+    
     document.getElementById('cal-month-name').innerText = `${months[month]} ${year}`;
     grid.innerHTML = '';
+    agendaList.innerHTML = '';
 
     const firstDay = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-    // Map items
+    // Map Events & Tasks
     const map = {};
     const addToMap = (d, i) => { if(!map[d]) map[d]=[]; map[d].push(i); };
     
-    appData.events.forEach(e => addToMap(e.Tanggal, {title:e.Nama_Event, type:'Event', color:'blue', time:'Full Day'}));
-    appData.tasks.filter(t=>t.Status!=='Done').forEach(t => addToMap(t.Deadline, {title:t.Task, type:'Task', color:'red', time: t['Jam Deadline']||'23:59'}));
+    appData.events.forEach(e => addToMap(e.Tanggal, {title:e.Nama_Event, type:'Event', color:'blue', time: e.Jam || 'Full Day'}));
+    appData.tasks.filter(t=>t.Status!=='Done').forEach(t => addToMap(t.Deadline, {title:t.Task, type:'Deadline', color:'red', time: t['Jam Deadline']||'23:59'}));
 
     // Blanks
     for(let i=0; i<firstDay; i++) grid.innerHTML += `<div class="h-10 md:h-14"></div>`;
+
+    let monthHasAgenda = false;
 
     // Dates
     for(let d=1; d<=daysInMonth; d++) {
@@ -186,10 +262,11 @@ function renderCalendar(month, year) {
         const items = map[dateStr] || [];
         const dots = items.map(i=>`<div class="w-1.5 h-1.5 rounded-full bg-${i.color}-500"></div>`).join('');
         
-        // Element
+        // Grid Item
         const div = document.createElement('div');
         div.className = "h-10 md:h-14 p-1 flex flex-col items-center rounded hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer border border-transparent hover:border-gray-200";
         div.innerHTML = `<span class="text-sm font-medium">${d}</span><div class="flex gap-0.5 mt-1">${dots}</div>`;
+        
         div.onclick = () => {
              const content = document.getElementById('modal-day-content');
              document.getElementById('modal-day-title').innerText = `Agenda ${dateStr}`;
@@ -204,28 +281,45 @@ function renderCalendar(month, year) {
              document.getElementById('modal-day-detail').classList.remove('hidden');
         };
         grid.appendChild(div);
+
+        // Populate List Below
+        if(items.length > 0) {
+            monthHasAgenda = true;
+            items.forEach(item => {
+                const colorClass = item.color === 'blue' ? 'text-blue-600 bg-blue-50' : 'text-red-600 bg-red-50';
+                agendaList.innerHTML += `
+                    <div class="flex gap-3 items-center p-2 rounded hover:bg-gray-50 dark:hover:bg-gray-800">
+                        <div class="w-10 text-center rounded p-1 ${colorClass}">
+                            <div class="text-xs uppercase font-bold opacity-70">${months[month].substring(0,3)}</div>
+                            <div class="text-lg font-bold leading-none">${d}</div>
+                        </div>
+                        <div>
+                            <p class="font-medium text-sm">${item.title}</p>
+                            <p class="text-xs text-gray-500">${item.type} • ${item.time}</p>
+                        </div>
+                    </div>`;
+            });
+        }
     }
+    
+    if(!monthHasAgenda) agendaList.innerHTML = '<p class="text-center text-gray-400 text-sm py-4">Tidak ada agenda bulan ini.</p>';
 }
 
-function renderTasks() {
-    const list = document.getElementById('task-list-container');
-    list.innerHTML = '';
-    appData.tasks.filter(t=>t.Status!=='Done').forEach(t => {
-        list.innerHTML += `
-            <div class="bg-white dark:bg-[#202020] border border-notion-border dark:border-notion-darkBorder rounded-lg p-3 flex items-center gap-3 shadow-sm">
-                <input type="checkbox" class="w-5 h-5 cursor-pointer accent-black" onclick="window.openCompleteModal('${t.ID}','${t.Task}','${t.Kategori}')">
-                <div class="flex-1">
-                    <div class="font-medium text-sm">${t.Task}</div>
-                    <div class="flex gap-2 mt-1">
-                        <span class="text-[10px] bg-gray-100 dark:bg-gray-700 px-1 rounded">📅 ${t.Deadline} ${t['Jam Deadline']||''}</span>
-                        <span class="text-[10px] bg-blue-50 text-blue-600 px-1 rounded">${t.Kategori}</span>
-                    </div>
-                </div>
-            </div>`;
+function renderFiles() {
+    const grid = document.getElementById('files-grid');
+    grid.innerHTML = '';
+    appData.files.forEach(f => {
+        grid.innerHTML += `
+            <a href="${f.url}" target="_blank" class="p-4 border border-notion-border dark:border-notion-darkBorder rounded-lg bg-white dark:bg-[#202020] hover:shadow-md block">
+                <div class="text-2xl mb-2">📄</div>
+                <div class="text-sm font-medium truncate">${f.name}</div>
+                <div class="text-xs text-gray-400">${f.size}</div>
+            </a>`;
     });
 }
 
 /* ACTIONS */
+
 window.changeMonth = (dir) => {
     calendarState.month += dir;
     if(calendarState.month>11){calendarState.month=0; calendarState.year++}
@@ -242,6 +336,36 @@ window.addTask = async () => {
     
     document.getElementById('inp-task-name').value = '';
     await fetch(API_URL, {method:'POST', body:JSON.stringify({action:'addTask', task:name, deadline:date, time:time, category:cat})});
+    loadData();
+};
+
+window.toggleRoadmapStatus = async (bab, sub, val) => {
+    // Optimistic Update
+    const item = appData.roadmap.find(r => r.Bab == bab && (r['Sub-Bab'] == sub || r.Item == sub));
+    if(item) item.Status = val;
+    renderRoadmap();
+    renderHome(); // Update progress
+    
+    await fetch(API_URL, {method:'POST', body:JSON.stringify({
+        action:'updateRoadmap', type:'status', bab:bab, subBab:sub, value:val
+    })});
+    loadData(); // Re-sync
+};
+
+window.openLinkModal = (bab, sub) => {
+    currentRoadmapItem = { bab, sub };
+    document.getElementById('modal-link-input').classList.remove('hidden');
+};
+
+window.saveRoadmapLink = async () => {
+    const val = document.getElementById('inp-roadmap-link').value;
+    if(!val) return;
+    document.getElementById('modal-link-input').classList.add('hidden');
+    document.getElementById('inp-roadmap-link').value = '';
+    
+    await fetch(API_URL, {method:'POST', body:JSON.stringify({
+        action:'updateRoadmap', type:'link', bab:currentRoadmapItem.bab, subBab:currentRoadmapItem.sub, value:val
+    })});
     loadData();
 };
 
@@ -272,7 +396,7 @@ window.openHistoryModal = () => {
     const tbody = document.getElementById('full-history-body');
     tbody.innerHTML = '';
     appData.logs.slice().reverse().forEach(log => {
-        tbody.innerHTML += `<tr><td class="p-3 text-gray-500">${log.Tanggal}</td><td class="p-3"><div>${log.Aktivitas}</div><div class="text-xs text-gray-400">${log.Kategori}</div></td><td class="p-3 font-mono text-xs">${log['Jam Mulai']}-${log['Jam Selesai']}</td><td class="p-3 text-right font-bold">${log[4]} m</td></tr>`;
+        tbody.innerHTML += `<tr><td class="p-3 text-gray-500">${log.Tanggal}</td><td class="p-3"><div>${log.Aktivitas}</div><div class="text-xs text-gray-400">${log.Kategori}</div></td><td class="p-3 font-mono text-xs">${log[2]||'-'} - ${log[3]||'-'}</td><td class="p-3 text-right font-bold">${log[4]} m</td></tr>`;
     });
     document.getElementById('modal-history').classList.remove('hidden');
 };
