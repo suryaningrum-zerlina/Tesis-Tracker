@@ -1,1 +1,342 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Tesis Tracker</title>
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="theme-color" content="#ffffff">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        notion: {
+                            bg: '#FFFFFF', // Putih Notion
+                            darkBg: '#191919', // Gelap Notion
+                            sidebar: '#F7F7F5',
+                            darkSidebar: '#202020',
+                            border: '#E9E9E7',
+                            darkBorder: '#2F2F2F',
+                            red: '#FFE2DD',
+                            redText: '#D44C47',
+                            yellow: '#FDECC8',
+                            yellowText: '#CB912F',
+                            green: '#DBEDDB',
+                            greenText: '#448361',
+                            blue: '#D3E5EF',
+                            blueText: '#337EA9'
+                        }
+                    },
+                    boxShadow: {
+                        'bottom-nav': '0 -1px 2px rgba(0,0,0,0.05)',
+                    }
+                }
+            }
+        }
+    </script>
 
+    <style>
+        body {
+            -webkit-tap-highlight-color: transparent;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        /* Sembunyikan Scrollbar tapi tetap bisa scroll */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* Animasi Transisi Tab */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.2s ease-in-out;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Bottom Nav Padding untuk iPhone */
+        .pb-safe {
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+    </style>
+</head>
+<body class="bg-notion-bg dark:bg-notion-darkBg text-gray-800 dark:text-gray-100 transition-colors duration-200">
+
+    <div class="max-w-md mx-auto min-h-screen relative border-x border-notion-border dark:border-notion-darkBorder shadow-sm">
+
+        <header class="sticky top-0 z-40 bg-white/80 dark:bg-notion-darkBg/80 backdrop-blur-md border-b border-notion-border dark:border-notion-darkBorder px-5 py-3 flex justify-between items-center">
+            <h1 id="page-title" class="text-xl font-semibold tracking-tight">🏠 Home</h1>
+            <button id="theme-toggle" class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">
+                🌙
+            </button>
+        </header>
+
+        <main class="p-5 pb-24 overflow-y-auto h-full">
+
+            <div id="view-home" class="tab-content active">
+                <div class="mb-6">
+                    <p class="text-gray-500 text-sm">Selamat Pagi,</p>
+                    <h2 class="text-2xl font-bold">Semangat Tesis! 🎓</h2>
+                </div>
+
+                <div class="bg-notion-sidebar dark:bg-notion-darkSidebar rounded-xl p-4 mb-6 border border-notion-border dark:border-notion-darkBorder">
+                    <div class="flex justify-between items-end mb-2">
+                        <span class="text-sm font-medium">Total Progress</span>
+                        <span class="text-2xl font-bold font-mono">35%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                        <div class="bg-black dark:bg-white h-2.5 rounded-full" style="width: 35%"></div>
+                    </div>
+                    <div class="mt-4 flex gap-2">
+                        <span class="px-2 py-1 bg-notion-green text-notion-greenText text-xs rounded font-medium">Bab I: Selesai</span>
+                        <span class="px-2 py-1 bg-notion-yellow text-notion-yellowText text-xs rounded font-medium">Bab II: On-going</span>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Deadline Terdekat</h3>
+                    <div class="flex items-start gap-3 p-3 rounded-lg border border-notion-border dark:border-notion-darkBorder bg-white dark:bg-[#202020] shadow-sm">
+                        <div class="text-2xl bg-notion-red/20 p-2 rounded-lg">📅</div>
+                        <div>
+                            <h4 class="font-semibold">UTS (Ujian Tengah Semester)</h4>
+                            <p class="text-sm text-notion-redText font-medium">6 April 2026</p>
+                            <p class="text-xs text-gray-500 mt-1">2 bulan lagi</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-roadmap" class="tab-content">
+                <div class="mb-4 group">
+                    <details class="group">
+                        <summary class="flex items-center justify-between p-3 bg-notion-sidebar dark:bg-notion-darkSidebar rounded-lg cursor-pointer list-none">
+                            <span class="font-medium flex items-center gap-2">📂 Bab I - Pendahuluan</span>
+                            <span class="text-xs bg-notion-green text-notion-greenText px-2 py-1 rounded">Selesai</span>
+                        </summary>
+                        <div class="pl-4 pr-2 py-2 border-l-2 border-notion-border dark:border-notion-darkBorder ml-3 mt-1 space-y-2">
+                            <div class="flex items-center justify-between text-sm py-1">
+                                <span class="flex items-center gap-2">📄 Latar Belakang</span>
+                                <a href="#" class="text-xs text-blue-500 hover:underline">Lihat File ↗</a>
+                            </div>
+                            <div class="flex items-center justify-between text-sm py-1">
+                                <span class="flex items-center gap-2">📄 Tujuan Penelitian</span>
+                                <a href="#" class="text-xs text-blue-500 hover:underline">Lihat File ↗</a>
+                            </div>
+                        </div>
+                    </details>
+                </div>
+
+                <div class="mb-4">
+                    <details open>
+                        <summary class="flex items-center justify-between p-3 bg-notion-sidebar dark:bg-notion-darkSidebar rounded-lg cursor-pointer list-none">
+                            <span class="font-medium flex items-center gap-2">📂 Bab II - Tinjauan Pustaka</span>
+                            <span class="text-xs bg-notion-yellow text-notion-yellowText px-2 py-1 rounded">20%</span>
+                        </summary>
+                        <div class="pl-4 pr-2 py-2 border-l-2 border-notion-border dark:border-notion-darkBorder ml-3 mt-1 space-y-3">
+                            <div class="flex items-center justify-between text-sm">
+                                <span>📄 Kerangka Konsep</span>
+                                <span class="text-[10px] px-1.5 py-0.5 bg-notion-yellow text-notion-yellowText rounded">Writing</span>
+                            </div>
+                            <div class="flex items-center justify-between text-sm">
+                                <span>📄 Model Penelitian</span>
+                                <span class="text-[10px] px-1.5 py-0.5 bg-gray-200 text-gray-600 rounded">To-do</span>
+                            </div>
+                        </div>
+                    </details>
+                </div>
+            </div>
+
+            <div id="view-tasks" class="tab-content">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-semibold text-gray-500">Hari Ini</h3>
+                    <button class="text-sm bg-black dark:bg-white text-white dark:text-black px-3 py-1 rounded hover:opacity-80 transition">+ Baru</button>
+                </div>
+
+                <div class="flex items-center gap-3 p-3 mb-2 bg-white dark:bg-[#202020] border border-notion-border dark:border-notion-darkBorder rounded-lg shadow-sm">
+                    <input type="checkbox" class="w-5 h-5 rounded border-gray-300 text-black focus:ring-black">
+                    <div class="flex-1">
+                        <p class="text-sm font-medium">Cari Jurnal untuk Bab II</p>
+                        <span class="text-[10px] bg-notion-blue text-notion-blueText px-1.5 py-0.5 rounded">Baca Referensi</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3 p-3 mb-2 bg-white dark:bg-[#202020] border border-notion-border dark:border-notion-darkBorder rounded-lg shadow-sm">
+                    <input type="checkbox" class="w-5 h-5 rounded border-gray-300 text-black focus:ring-black">
+                    <div class="flex-1">
+                        <p class="text-sm font-medium">Revisi Latar Belakang (Typo)</p>
+                        <span class="text-[10px] bg-notion-red text-notion-redText px-1.5 py-0.5 rounded">Proof Read</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-calendar" class="tab-content">
+                <div class="grid grid-cols-7 gap-1 text-center mb-2 text-xs font-semibold text-gray-400">
+                    <div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div>
+                </div>
+                <div class="grid grid-cols-7 gap-1 text-center text-sm mb-6">
+                    <div class="p-2 text-gray-300">29</div>
+                    <div class="p-2 text-gray-300">30</div>
+                    <div class="p-2 hover:bg-gray-100 rounded">1</div>
+                    <div class="p-2 hover:bg-gray-100 rounded">2</div>
+                    <div class="p-2 hover:bg-gray-100 rounded">3</div>
+                    <div class="p-2 hover:bg-gray-100 rounded">4</div>
+                    <div class="p-2 bg-notion-red text-notion-redText rounded font-bold">5</div> <div class="p-2 hover:bg-gray-100 rounded">6</div>
+                    <div class="p-2 bg-black text-white rounded-full mx-auto w-9 h-9 flex items-center justify-center">7</div> </div>
+
+                <h3 class="font-semibold text-sm mb-3">Agenda Bulan Ini</h3>
+                <div class="space-y-3">
+                    <div class="flex gap-3 text-sm">
+                        <div class="flex flex-col items-center text-gray-500 w-10">
+                            <span class="text-xs">FEB</span>
+                            <span class="font-bold text-lg text-black dark:text-white">09</span>
+                        </div>
+                        <div class="border-l-2 border-notion-blue pl-3">
+                            <p class="font-medium">Hari Pertama KBM</p>
+                            <p class="text-xs text-gray-500">08:00 - Kampus UI</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-files" class="tab-content">
+                
+                <div class="mb-6 p-4 border-2 border-dashed border-gray-300 rounded-lg text-center hover:bg-gray-50 cursor-pointer transition">
+                    <p class="text-2xl mb-1">📤</p>
+                    <p class="text-sm font-medium text-gray-600">Upload Dokumen Baru</p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="p-3 border border-notion-border dark:border-notion-darkBorder rounded-lg bg-white dark:bg-[#202020]">
+                        <div class="text-2xl mb-2">📄</div>
+                        <p class="text-xs font-medium truncate">Proposal_Final_Acc.pdf</p>
+                        <p class="text-[10px] text-gray-400 mt-1">2 MB • 2 hari lalu</p>
+                    </div>
+                    <div class="p-3 border border-notion-border dark:border-notion-darkBorder rounded-lg bg-white dark:bg-[#202020]">
+                        <div class="text-2xl mb-2">📊</div>
+                        <p class="text-xs font-medium truncate">Data_Mentah_Survey.xlsx</p>
+                        <p class="text-[10px] text-gray-400 mt-1">500 KB • Kemarin</p>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <nav class="fixed bottom-0 w-full max-w-md bg-white dark:bg-[#202020] border-t border-notion-border dark:border-notion-darkBorder pb-safe pt-1 px-2 flex justify-between items-center z-50 text-[10px] font-medium text-gray-400 shadow-bottom-nav">
+            
+            <button onclick="switchTab('home')" class="nav-btn w-full p-2 flex flex-col items-center gap-1 text-black dark:text-white" data-target="home">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                <span>Home</span>
+            </button>
+
+            <button onclick="switchTab('roadmap')" class="nav-btn w-full p-2 flex flex-col items-center gap-1 hover:text-gray-600" data-target="roadmap">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                </svg>
+                <span>Roadmap</span>
+            </button>
+
+            <button onclick="switchTab('tasks')" class="nav-btn w-full p-2 flex flex-col items-center gap-1 hover:text-gray-600" data-target="tasks">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>Tasks</span>
+            </button>
+
+            <button onclick="switchTab('calendar')" class="nav-btn w-full p-2 flex flex-col items-center gap-1 hover:text-gray-600" data-target="calendar">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <span>Calendar</span>
+            </button>
+
+            <button onclick="switchTab('files')" class="nav-btn w-full p-2 flex flex-col items-center gap-1 hover:text-gray-600" data-target="files">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1a2 2 0 002 0v-1a4 4 0 00-4-4H9l-2-2H5a4 4 0 00-4 4v10a4 4 0 004 4h9.382a4.975 4.975 0 00-.582-2H5z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 13l-3 3m0 0l-3-3m3 3V8m0 13a9 9 0 110-18 9 9 0 010 18z" />
+                </svg>
+                <span>Files</span>
+            </button>
+        </nav>
+    </div>
+
+    <script>
+        // 1. Logic Pindah Tab
+        function switchTab(tabId) {
+            // Sembunyikan semua konten
+            document.querySelectorAll('.tab-content').forEach(el => {
+                el.classList.remove('active');
+            });
+            
+            // Tampilkan konten yang dipilih
+            document.getElementById('view-' + tabId).classList.add('active');
+
+            // Update Header Title
+            const titles = {
+                'home': '🏠 Home',
+                'roadmap': '🗺️ Roadmap',
+                'tasks': '✅ Tasks',
+                'calendar': '📅 Calendar',
+                'files': '📂 Drive Files'
+            };
+            document.getElementById('page-title').innerText = titles[tabId];
+
+            // Update Active State di Navigasi Bawah
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                // Reset warna ke abu-abu
+                btn.classList.remove('text-black', 'dark:text-white');
+                btn.classList.add('text-gray-400');
+                
+                // Set aktif jika cocok
+                if(btn.dataset.target === tabId) {
+                    btn.classList.remove('text-gray-400');
+                    btn.classList.add('text-black', 'dark:text-white');
+                }
+            });
+        }
+
+        // 2. Logic Dark Mode
+        const themeToggle = document.getElementById('theme-toggle');
+        const html = document.documentElement;
+
+        // Cek LocalStorage saat load
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            html.classList.add('dark');
+        } else {
+            html.classList.remove('dark');
+        }
+
+        themeToggle.addEventListener('click', () => {
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                localStorage.theme = 'light';
+            } else {
+                html.classList.add('dark');
+                localStorage.theme = 'dark';
+            }
+        });
+
+        // 3. Init (Opsional: Nanti diisi Fetch Data dari Apps Script)
+        console.log("App Ready. Menunggu integrasi Backend.");
+    </script>
+</body>
+</html>
