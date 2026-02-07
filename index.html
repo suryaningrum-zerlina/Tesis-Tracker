@@ -24,11 +24,9 @@
                             sidebar: '#F7F7F5', darkSidebar: '#202020',
                             border: '#E9E9E7', darkBorder: '#2F2F2F',
                             green: '#DBEDDB', greenText: '#448361',
+                            red: '#FFE2DD', redText: '#D44C47',
                             hover: '#EFEFEF', darkHover: '#2C2C2C'
                         }
-                    },
-                    gridTemplateColumns: {
-                        'heatmap': 'repeat(53, minmax(0, 1fr))', // 53 minggu setahun
                     }
                 }
             }
@@ -45,7 +43,6 @@
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* Safe Area untuk Mobile PWA */
         .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
     </style>
 </head>
@@ -58,26 +55,26 @@
         </div>
         
         <nav class="flex-1 px-3 space-y-1">
-            <button onclick="switchTab('home')" class="nav-item w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md text-gray-600 dark:text-gray-300 hover:bg-notion-hover dark:hover:bg-notion-darkHover group active" data-target="home">
+            <button onclick="switchTab('home')" class="nav-item w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-notion-hover dark:hover:bg-notion-darkHover group active bg-gray-200 dark:bg-gray-800" data-target="home">
                 <span>🏠</span> Home
             </button>
-            <button onclick="switchTab('roadmap')" class="nav-item w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md text-gray-600 dark:text-gray-300 hover:bg-notion-hover dark:hover:bg-notion-darkHover group" data-target="roadmap">
+            <button onclick="switchTab('roadmap')" class="nav-item w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-notion-hover dark:hover:bg-notion-darkHover group" data-target="roadmap">
                 <span>🗺️</span> Roadmap
             </button>
-            <button onclick="switchTab('tasks')" class="nav-item w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md text-gray-600 dark:text-gray-300 hover:bg-notion-hover dark:hover:bg-notion-darkHover group" data-target="tasks">
+            <button onclick="switchTab('tasks')" class="nav-item w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-notion-hover dark:hover:bg-notion-darkHover group" data-target="tasks">
                 <span>✅</span> Tasks & To-Do
             </button>
-            <button onclick="switchTab('calendar')" class="nav-item w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md text-gray-600 dark:text-gray-300 hover:bg-notion-hover dark:hover:bg-notion-darkHover group" data-target="calendar">
+            <button onclick="switchTab('calendar')" class="nav-item w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-notion-hover dark:hover:bg-notion-darkHover group" data-target="calendar">
                 <span>📅</span> Calendar
             </button>
-            <button onclick="switchTab('files')" class="nav-item w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md text-gray-600 dark:text-gray-300 hover:bg-notion-hover dark:hover:bg-notion-darkHover group" data-target="files">
+            <button onclick="switchTab('files')" class="nav-item w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-notion-hover dark:hover:bg-notion-darkHover group" data-target="files">
                 <span>📂</span> Drive Files
             </button>
         </nav>
 
-        <div class="p-4 border-t border-notion-border dark:border-notion-darkBorder">
-            <button id="theme-toggle-desktop" class="flex items-center gap-2 text-sm text-gray-500 hover:text-black dark:hover:text-white">
-                🌙 Toggle Theme
+        <div class="p-4 border-t border-notion-border dark:border-notion-darkBorder space-y-2">
+            <button onclick="switchTab('settings')" class="nav-item w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-notion-hover dark:hover:bg-notion-darkHover group" data-target="settings">
+                <span>⚙️</span> Settings
             </button>
         </div>
     </aside>
@@ -86,56 +83,43 @@
         
         <header class="md:hidden sticky top-0 z-40 bg-white/90 dark:bg-notion-darkBg/90 backdrop-blur-md border-b border-notion-border dark:border-notion-darkBorder px-4 py-3 flex justify-between items-center">
             <h1 id="page-title" class="font-semibold tracking-tight">🏠 Home</h1>
-            <button id="theme-toggle-mobile" class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">🌙</button>
+            <div class="flex gap-2">
+                <button onclick="switchTab('settings')" class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">⚙️</button>
+            </div>
         </header>
 
         <main class="flex-1 overflow-y-auto p-4 md:p-8 pb-24 md:pb-8">
-            <div class="max-w-5xl mx-auto"> <div id="view-home" class="tab-content active">
+            <div class="max-w-5xl mx-auto">
+
+                <div id="view-home" class="tab-content active">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                         <div class="md:col-span-2 bg-notion-sidebar dark:bg-notion-darkSidebar rounded-xl p-5 border border-notion-border dark:border-notion-darkBorder">
                             <div class="flex justify-between items-end mb-3">
                                 <div>
                                     <h2 class="text-lg font-bold">Progress Tesis</h2>
-                                    <p class="text-xs text-gray-500">Update terakhir: Hari ini</p>
+                                    <p class="text-xs text-gray-500">Target Lulus: Juli 2026</p>
                                 </div>
                                 <span class="text-3xl font-bold font-mono">35%</span>
                             </div>
                             <div class="w-full bg-gray-200 rounded-full h-3 dark:bg-gray-700 overflow-hidden">
-                                <div class="bg-black dark:bg-white h-3 rounded-full transition-all duration-1000" style="width: 35%"></div>
+                                <div class="bg-black dark:bg-white h-3 rounded-full" style="width: 35%"></div>
                             </div>
                         </div>
-
-                        <div class="bg-white dark:bg-notion-darkSidebar border border-notion-border dark:border-notion-darkBorder rounded-xl p-5 flex flex-col justify-center">
+                        <div class="bg-white dark:bg-[#202020] border border-notion-border dark:border-notion-darkBorder rounded-xl p-5 flex flex-col justify-center">
                             <h3 class="text-sm text-gray-500 mb-1">Total Jam Fokus</h3>
                             <p class="text-3xl font-bold">128 <span class="text-sm font-normal text-gray-400">jam</span></p>
-                            <div class="mt-2 text-xs text-green-600 bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded w-max">
-                                +12 jam minggu ini
-                            </div>
                         </div>
                     </div>
 
                     <div class="mb-8">
-                        <h3 class="font-semibold mb-3 flex items-center gap-2">
-                            🔥 Aktivitas Pengerjaan
-                            <span class="text-xs font-normal text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded">Tahun 2026</span>
-                        </h3>
-                        <div class="overflow-x-auto pb-2 -mx-4 px-4 md:mx-0 md:px-0">
-                            <div id="heatmap-container" class="flex gap-1 min-w-max">
-                                </div>
-                            <div class="flex justify-end items-center gap-2 mt-2 text-[10px] text-gray-400">
-                                <span>Less</span>
-                                <div class="w-2 h-2 bg-gray-200 dark:bg-gray-700 rounded-sm"></div>
-                                <div class="w-2 h-2 bg-green-200 rounded-sm"></div>
-                                <div class="w-2 h-2 bg-green-400 rounded-sm"></div>
-                                <div class="w-2 h-2 bg-green-600 rounded-sm"></div>
-                                <span>More</span>
-                            </div>
-                        </div>
+                        <h3 class="font-semibold mb-3">🔥 Aktivitas (Heatmap)</h3>
+                        <div class="overflow-x-auto pb-2">
+                            <div id="heatmap-container" class="flex gap-1 min-w-max"></div> </div>
                     </div>
 
                     <div class="mb-6">
                         <h3 class="font-semibold mb-3">Riwayat Terbaru</h3>
-                        <div class="border border-notion-border dark:border-notion-darkBorder rounded-lg overflow-hidden">
+                        <div class="border border-notion-border dark:border-notion-darkBorder rounded-lg overflow-hidden bg-white dark:bg-[#202020]">
                             <table class="w-full text-sm text-left">
                                 <thead class="bg-gray-50 dark:bg-[#252525] text-gray-500 border-b border-notion-border dark:border-notion-darkBorder">
                                     <tr>
@@ -144,38 +128,27 @@
                                         <th class="px-4 py-2 font-medium text-right">Durasi</th>
                                     </tr>
                                 </thead>
-                                <tbody class="divide-y divide-notion-border dark:divide-notion-darkBorder bg-white dark:bg-[#191919]">
+                                <tbody class="divide-y divide-notion-border dark:divide-notion-darkBorder">
                                     <tr>
                                         <td class="px-4 py-3 text-xs text-gray-500">07 Feb</td>
                                         <td class="px-4 py-3">
                                             <div class="font-medium">Revisi Bab I</div>
-                                            <div class="text-xs text-gray-400">Memperbaiki typo latar belakang</div>
+                                            <div class="text-xs text-gray-400">Typo Latar Belakang</div>
                                         </td>
                                         <td class="px-4 py-3 text-right font-mono text-xs">45 m</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="px-4 py-3 text-xs text-gray-500">06 Feb</td>
-                                        <td class="px-4 py-3">
-                                            <div class="font-medium">Bimbingan Dosen</div>
-                                            <div class="text-xs text-gray-400">Diskusi via Zoom</div>
-                                        </td>
-                                        <td class="px-4 py-3 text-right font-mono text-xs">60 m</td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
-                        <button class="w-full text-center text-xs text-gray-400 mt-2 hover:text-gray-600">Lihat semua riwayat ↓</button>
                     </div>
                 </div>
 
                 <div id="view-roadmap" class="tab-content">
                     <h2 class="text-2xl font-bold mb-6 hidden md:block">Roadmap Tesis</h2>
-                    <div class="bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-900/30 p-4 rounded-lg mb-4 text-sm text-yellow-800 dark:text-yellow-200">
-                        🚧 Tampilan Roadmap sama seperti versi mobile, namun akan lebih lebar di desktop.
-                    </div>
-                     <div class="mb-4">
+                    
+                    <div class="mb-4">
                         <details open class="group">
-                            <summary class="flex items-center justify-between p-3 bg-notion-sidebar dark:bg-notion-darkSidebar rounded-lg cursor-pointer list-none">
+                            <summary class="flex items-center justify-between p-3 bg-notion-sidebar dark:bg-notion-darkSidebar rounded-lg cursor-pointer list-none border border-transparent hover:border-gray-300 transition">
                                 <span class="font-medium flex items-center gap-2">📂 Bab I - Pendahuluan</span>
                                 <span class="text-xs bg-notion-green text-notion-greenText px-2 py-1 rounded">Selesai</span>
                             </summary>
@@ -184,6 +157,25 @@
                                     <span class="flex items-center gap-2">📄 Latar Belakang</span>
                                     <a href="#" class="text-xs text-blue-500 hover:underline">Lihat File ↗</a>
                                 </div>
+                                <div class="flex items-center justify-between text-sm py-1">
+                                    <span class="flex items-center gap-2">📄 Rumusan Masalah</span>
+                                    <a href="#" class="text-xs text-blue-500 hover:underline">Lihat File ↗</a>
+                                </div>
+                            </div>
+                        </details>
+                    </div>
+
+                    <div class="mb-4">
+                        <details class="group">
+                            <summary class="flex items-center justify-between p-3 bg-notion-sidebar dark:bg-notion-darkSidebar rounded-lg cursor-pointer list-none border border-transparent hover:border-gray-300 transition">
+                                <span class="font-medium flex items-center gap-2">📂 Bab II - Tinjauan Pustaka</span>
+                                <span class="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded">In Progress</span>
+                            </summary>
+                            <div class="pl-4 pr-2 py-2 border-l-2 border-notion-border dark:border-notion-darkBorder ml-3 mt-1 space-y-2">
+                                <div class="flex items-center justify-between text-sm py-1">
+                                    <span class="flex items-center gap-2">📄 Kerangka Teori</span>
+                                    <span class="text-xs text-gray-400">Belum ada file</span>
+                                </div>
                             </div>
                         </details>
                     </div>
@@ -191,53 +183,150 @@
 
                 <div id="view-tasks" class="tab-content">
                     <h2 class="text-2xl font-bold mb-6 hidden md:block">Tasks & To-Do</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <h3 class="font-semibold text-gray-500 mb-3">To-Do List</h3>
-                            <div class="bg-white dark:bg-[#202020] border border-notion-border dark:border-notion-darkBorder rounded-lg p-4 shadow-sm">
-                                <div class="flex gap-2 mb-4">
-                                    <input type="text" placeholder="+ Tambah tugas baru..." class="flex-1 bg-transparent border-b border-gray-300 dark:border-gray-700 focus:outline-none focus:border-black dark:focus:border-white text-sm py-1">
-                                </div>
-                                <div class="flex items-center gap-3 py-2 border-b border-gray-100 dark:border-gray-800 last:border-0">
-                                    <input type="checkbox" class="w-4 h-4 rounded border-gray-300">
-                                    <span class="text-sm">Cari Jurnal Bab II</span>
-                                </div>
-                            </div>
+                    <div class="bg-white dark:bg-[#202020] border border-notion-border dark:border-notion-darkBorder rounded-lg p-4 shadow-sm">
+                        <div class="flex gap-2 mb-4">
+                            <input type="text" placeholder="+ Tambah tugas baru..." class="flex-1 bg-transparent border-b border-gray-300 dark:border-gray-700 focus:outline-none focus:border-black dark:focus:border-white text-sm py-1">
                         </div>
-                        
-                        <div class="hidden md:block">
-                            <h3 class="font-semibold text-gray-500 mb-3">Task Overview</h3>
-                            <div class="bg-notion-sidebar dark:bg-notion-darkSidebar rounded-lg p-4 h-40 flex items-center justify-center text-gray-400 text-sm">
-                                [Chart Statistik Tugas Akan Muncul Di Sini]
-                            </div>
+                        <div class="flex items-center gap-3 py-3 border-b border-gray-100 dark:border-gray-800">
+                            <input type="checkbox" class="w-4 h-4 rounded border-gray-300">
+                            <span class="text-sm">Cari Jurnal Bab II</span>
+                            <span class="ml-auto text-[10px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded">Bimbingan</span>
+                        </div>
+                        <div class="flex items-center gap-3 py-3 border-b border-gray-100 dark:border-gray-800">
+                            <input type="checkbox" class="w-4 h-4 rounded border-gray-300">
+                            <span class="text-sm">Revisi Typo Bab I</span>
+                            <span class="ml-auto text-[10px] bg-purple-100 text-purple-600 px-2 py-0.5 rounded">Nulis</span>
                         </div>
                     </div>
                 </div>
 
                 <div id="view-calendar" class="tab-content">
-                    <h2 class="text-2xl font-bold mb-6 hidden md:block">Kalender Akademik</h2>
-                    <div class="bg-white dark:bg-[#202020] border border-notion-border dark:border-notion-darkBorder rounded-lg p-4">
-                        <p class="text-center py-10 text-gray-400">Tampilan Kalender Full (Desktop Version)</p>
+                    <h2 class="text-2xl font-bold mb-4 hidden md:block">Kalender Akademik</h2>
+                    
+                    <div class="bg-white dark:bg-[#202020] border border-notion-border dark:border-notion-darkBorder rounded-xl p-4 md:p-6 shadow-sm">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="font-bold text-lg">Februari 2026</h3>
+                            <div class="flex gap-2">
+                                <button class="p-1 hover:bg-gray-100 rounded">◀</button>
+                                <button class="p-1 hover:bg-gray-100 rounded">▶</button>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-7 gap-1 md:gap-4 text-center mb-2">
+                            <div class="text-xs font-semibold text-gray-400">MIN</div>
+                            <div class="text-xs font-semibold text-gray-400">SEN</div>
+                            <div class="text-xs font-semibold text-gray-400">SEL</div>
+                            <div class="text-xs font-semibold text-gray-400">RAB</div>
+                            <div class="text-xs font-semibold text-gray-400">KAM</div>
+                            <div class="text-xs font-semibold text-gray-400">JUM</div>
+                            <div class="text-xs font-semibold text-gray-400">SAB</div>
+                        </div>
+                        
+                        <div class="grid grid-cols-7 gap-1 md:gap-4 text-center text-sm">
+                            <div class="p-2 text-gray-300">26</div><div class="p-2 text-gray-300">27</div><div class="p-2 text-gray-300">28</div><div class="p-2 text-gray-300">29</div><div class="p-2 text-gray-300">30</div><div class="p-2 text-gray-300">31</div>
+                            
+                            <div class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded cursor-pointer">1</div>
+                            <div class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded cursor-pointer">2</div>
+                            <div class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded cursor-pointer">3</div>
+                            <div class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded cursor-pointer">4</div>
+                            <div class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded cursor-pointer">5</div>
+                            <div class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded cursor-pointer">6</div>
+                            
+                            <div class="p-2 bg-black text-white dark:bg-white dark:text-black rounded-full w-8 h-8 md:w-10 md:h-10 mx-auto flex items-center justify-center font-bold">7</div>
+                            
+                            <div class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded cursor-pointer relative">
+                                8
+                                <span class="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-red-500 rounded-full"></span>
+                            </div>
+                            
+                            <div class="p-2 bg-notion-blue/30 text-blue-700 rounded cursor-pointer font-medium">9</div> <div class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded cursor-pointer">10</div>
+                            <div class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded cursor-pointer">11</div>
+                            <div class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded cursor-pointer">12</div>
+                            <div class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded cursor-pointer">13</div>
+                            <div class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded cursor-pointer">14</div>
+                        </div>
+
+                        <div class="mt-6 pt-4 border-t border-notion-border dark:border-notion-darkBorder">
+                            <h4 class="text-sm font-semibold mb-3">Agenda Bulan Ini</h4>
+                            <div class="space-y-3">
+                                <div class="flex gap-4 items-start">
+                                    <div class="text-center w-12 bg-blue-50 dark:bg-blue-900/20 rounded p-1">
+                                        <div class="text-[10px] text-blue-600 uppercase font-bold">Feb</div>
+                                        <div class="text-lg font-bold text-blue-800 dark:text-blue-300">09</div>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-sm">Hari Pertama KBM</p>
+                                        <p class="text-xs text-gray-500">Mulai Semester Genap</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <div id="view-files" class="tab-content">
                     <h2 class="text-2xl font-bold mb-6 hidden md:block">Google Drive Files</h2>
+                    <div class="mb-6 p-6 border-2 border-dashed border-gray-300 rounded-xl text-center hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition">
+                        <p class="text-3xl mb-2">📤</p>
+                        <p class="text-sm font-medium">Klik untuk upload file baru</p>
+                        <p class="text-xs text-gray-400">PDF, Docx, Xlsx</p>
+                    </div>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div class="p-4 border border-notion-border dark:border-notion-darkBorder rounded-lg bg-white dark:bg-[#202020] hover:shadow-md transition cursor-pointer">
+                        <div class="p-4 border border-notion-border dark:border-notion-darkBorder rounded-lg bg-white dark:bg-[#202020]">
                             <div class="text-3xl mb-3">📄</div>
                             <p class="text-sm font-medium truncate">Proposal_Final.pdf</p>
                             <p class="text-xs text-gray-400 mt-1">2.4 MB</p>
                         </div>
-                         <div class="p-4 border border-notion-border dark:border-notion-darkBorder rounded-lg bg-white dark:bg-[#202020] hover:shadow-md transition cursor-pointer">
-                            <div class="text-3xl mb-3">📊</div>
-                            <p class="text-sm font-medium truncate">Data_Raw.xlsx</p>
-                            <p class="text-xs text-gray-400 mt-1">500 KB</p>
-                        </div>
                     </div>
                 </div>
 
-            </div> </main>
+                <div id="view-settings" class="tab-content">
+                    <h2 class="text-2xl font-bold mb-6">Pengaturan Profil</h2>
+                    
+                    <div class="max-w-lg space-y-6">
+                        <div class="bg-white dark:bg-[#202020] border border-notion-border dark:border-notion-darkBorder rounded-xl p-6">
+                            <div class="flex items-center gap-4 mb-6">
+                                <div class="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center text-2xl">🎓</div>
+                                <div>
+                                    <h3 class="font-bold text-lg">Profil Mahasiswa</h3>
+                                    <p class="text-xs text-gray-500">Update informasimu di sini</p>
+                                </div>
+                            </div>
+                            
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-500 mb-1">Nama Lengkap</label>
+                                    <input type="text" value="Nama Mahasiswa" class="w-full p-2 border border-gray-300 dark:border-gray-700 rounded bg-transparent text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-500 mb-1">Jurusan / Fakultas</label>
+                                    <input type="text" value="Filsafat UI" class="w-full p-2 border border-gray-300 dark:border-gray-700 rounded bg-transparent text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-500 mb-1">Judul Tesis</label>
+                                    <textarea class="w-full p-2 border border-gray-300 dark:border-gray-700 rounded bg-transparent text-sm" rows="3">Analisis Fenomenologi terhadap Kebiasaan Menunda Skripsi</textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white dark:bg-[#202020] border border-notion-border dark:border-notion-darkBorder rounded-xl p-6">
+                            <h3 class="font-bold text-lg mb-4">Aplikasi</h3>
+                            
+                            <div class="flex items-center justify-between py-2">
+                                <div>
+                                    <p class="text-sm font-medium">Dark Mode</p>
+                                    <p class="text-xs text-gray-500">Ganti tampilan gelap/terang</p>
+                                </div>
+                                <button id="theme-toggle-settings" class="bg-gray-200 dark:bg-gray-700 px-3 py-1 rounded text-sm">Switch</button>
+                            </div>
+                        </div>
+
+                        <button class="w-full bg-black dark:bg-white text-white dark:text-black py-3 rounded-lg font-medium hover:opacity-90 transition">Simpan Perubahan</button>
+                    </div>
+                </div>
+
+            </div>
+        </main>
 
         <nav class="md:hidden fixed bottom-0 w-full bg-white dark:bg-[#202020] border-t border-notion-border dark:border-notion-darkBorder pb-safe pt-1 px-2 flex justify-between items-center z-50 text-[10px] font-medium text-gray-400 shadow-[0_-1px_2px_rgba(0,0,0,0.05)]">
             <button onclick="switchTab('home')" class="nav-btn w-full p-2 flex flex-col items-center gap-1 text-black dark:text-white" data-target="home">
@@ -259,49 +348,51 @@
     </div>
 
     <script>
-        // --- 1. LOGIC HEATMAP GENERATOR ---
+        // --- 1. HEATMAP GENERATOR ---
         function generateHeatmap() {
             const container = document.getElementById('heatmap-container');
-            const weeks = 20; // Tampilkan 20 minggu ke belakang
+            const weeks = 20; 
             const days = 7;
+            container.innerHTML = ''; // Reset
             
             for (let w = 0; w < weeks; w++) {
                 const weekCol = document.createElement('div');
                 weekCol.className = 'grid grid-rows-7 gap-1';
-                
                 for (let d = 0; d < days; d++) {
                     const dayBox = document.createElement('div');
-                    // Random Activity Level (0 = Kosong, 1-3 = Hijau)
                     const level = Math.random() > 0.7 ? Math.floor(Math.random() * 3) + 1 : 0;
-                    
-                    let colorClass = 'bg-gray-200 dark:bg-gray-800'; // Kosong
-                    if (level === 1) colorClass = 'bg-green-200'; // Sedikit
-                    if (level === 2) colorClass = 'bg-green-400'; // Sedang
-                    if (level === 3) colorClass = 'bg-green-600'; // Banyak
-
+                    let colorClass = 'bg-gray-200 dark:bg-gray-800'; 
+                    if (level === 1) colorClass = 'bg-green-200'; 
+                    if (level === 2) colorClass = 'bg-green-400'; 
+                    if (level === 3) colorClass = 'bg-green-600'; 
                     dayBox.className = `w-3 h-3 rounded-sm ${colorClass}`;
-                    dayBox.title = `Activity Level: ${level}`; // Tooltip native
                     weekCol.appendChild(dayBox);
                 }
                 container.appendChild(weekCol);
             }
         }
-        
-        // Panggil saat load
         generateHeatmap();
 
-        // --- 2. LOGIC NAVIGASI (Mobile & Desktop) ---
+        // --- 2. NAVIGASI LOGIC ---
         function switchTab(tabId) {
-            // Hide content
+            // Hide all views
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            // Show target view
             document.getElementById('view-' + tabId).classList.add('active');
 
             // Update Header Title (Mobile)
-            const titles = {'home': '🏠 Home', 'roadmap': '🗺️ Roadmap', 'tasks': '✅ Tasks', 'calendar': '📅 Calendar', 'files': '📂 Files'};
+            const titles = {
+                'home': '🏠 Home', 
+                'roadmap': '🗺️ Roadmap', 
+                'tasks': '✅ Tasks', 
+                'calendar': '📅 Calendar', 
+                'files': '📂 Files',
+                'settings': '⚙️ Settings'
+            };
             const pageTitle = document.getElementById('page-title');
             if(pageTitle) pageTitle.innerText = titles[tabId];
 
-            // Update Active State (Mobile Bottom Nav)
+            // Update Bottom Nav (Mobile)
             document.querySelectorAll('.nav-btn').forEach(btn => {
                 btn.classList.remove('text-black', 'dark:text-white');
                 btn.classList.add('text-gray-400');
@@ -311,16 +402,16 @@
                 }
             });
 
-            // Update Active State (Desktop Sidebar)
+            // Update Sidebar (Desktop)
             document.querySelectorAll('.nav-item').forEach(btn => {
-                btn.classList.remove('bg-gray-100', 'dark:bg-[#2C2C2C]', 'text-black', 'dark:text-white'); // Reset active style
+                btn.classList.remove('bg-gray-200', 'dark:bg-gray-800'); 
                 if(btn.dataset.target === tabId) {
-                    btn.classList.add('bg-gray-100', 'dark:bg-[#2C2C2C]', 'text-black', 'dark:text-white');
+                    btn.classList.add('bg-gray-200', 'dark:bg-gray-800');
                 }
             });
         }
 
-        // --- 3. DARK MODE LOGIC (Handle 2 Tombol) ---
+        // --- 3. DARK MODE ---
         const html = document.documentElement;
         function toggleTheme() {
             if (html.classList.contains('dark')) {
@@ -331,12 +422,8 @@
                 localStorage.theme = 'dark';
             }
         }
+        document.getElementById('theme-toggle-settings').addEventListener('click', toggleTheme);
 
-        // Event Listener untuk tombol Mobile & Desktop
-        document.getElementById('theme-toggle-mobile').addEventListener('click', toggleTheme);
-        document.getElementById('theme-toggle-desktop').addEventListener('click', toggleTheme);
-
-        // Check LocalStorage
         if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             html.classList.add('dark');
         }
