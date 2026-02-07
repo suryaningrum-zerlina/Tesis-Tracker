@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Tesis Tracker</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="theme-color" content="#ffffff">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -16,7 +15,7 @@
                 extend: {
                     fontFamily: { sans: ['Inter', 'sans-serif'] },
                     colors: {
-                        notion: { bg: '#FFFFFF', darkBg: '#191919', sidebar: '#F7F7F5', darkSidebar: '#202020', border: '#E9E9E7', darkBorder: '#2F2F2F', green: '#DBEDDB', greenText: '#448361', red: '#FFE2DD', redText: '#D44C47' }
+                        notion: { bg: '#FFFFFF', darkBg: '#191919', sidebar: '#F7F7F5', darkSidebar: '#202020', border: '#E9E9E7', darkBorder: '#2F2F2F' }
                     }
                 }
             }
@@ -35,22 +34,22 @@
 
     <aside class="hidden md:flex w-64 flex-col border-r border-notion-border dark:border-notion-darkBorder bg-notion-sidebar dark:bg-notion-darkSidebar h-full">
         <div class="p-5 flex items-center gap-3">
-            <img id="sidebar-avatar" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" class="w-10 h-10 rounded-full object-cover border border-gray-300">
+            <img id="sidebar-avatar" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" class="w-10 h-10 rounded-full object-cover border border-gray-300 bg-white">
             <div class="overflow-hidden">
                 <h1 id="sidebar-name" class="font-bold text-sm truncate">Mahasiswa</h1>
                 <p id="sidebar-major" class="text-xs text-gray-500 truncate">Filsafat UI</p>
             </div>
         </div>
         <nav class="flex-1 px-3 space-y-1">
-            <button onclick="switchTab('home')" class="nav-item w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-notion-hover dark:hover:bg-notion-darkHover group active bg-gray-200 dark:bg-gray-800" data-target="home"><span>🏠</span> Home</button>
-            <button onclick="switchTab('roadmap')" class="nav-item w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-notion-hover dark:hover:bg-notion-darkHover group" data-target="roadmap"><span>🗺️</span> Roadmap</button>
-            <button onclick="switchTab('tasks')" class="nav-item w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-notion-hover dark:hover:bg-notion-darkHover group" data-target="tasks"><span>✅</span> Tasks</button>
-            <button onclick="switchTab('calendar')" class="nav-item w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-notion-hover dark:hover:bg-notion-darkHover group" data-target="calendar"><span>📅</span> Calendar</button>
-            <button onclick="switchTab('files')" class="nav-item w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-notion-hover dark:hover:bg-notion-darkHover group" data-target="files"><span>📂</span> Files</button>
+            <button onclick="switchTab('home')" class="nav-item w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md active bg-gray-200 dark:bg-gray-800" data-target="home"><span>🏠</span> Home</button>
+            <button onclick="switchTab('roadmap')" class="nav-item w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-notion-sidebar" data-target="roadmap"><span>🗺️</span> Roadmap</button>
+            <button onclick="switchTab('tasks')" class="nav-item w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-notion-sidebar" data-target="tasks"><span>✅</span> Tasks</button>
+            <button onclick="switchTab('calendar')" class="nav-item w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-notion-sidebar" data-target="calendar"><span>📅</span> Calendar</button>
+            <button onclick="switchTab('files')" class="nav-item w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-notion-sidebar" data-target="files"><span>📂</span> Files</button>
         </nav>
         <div class="p-4 border-t border-notion-border dark:border-notion-darkBorder space-y-1">
-            <button id="theme-toggle-desktop" class="w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-notion-hover dark:hover:bg-notion-darkHover"><span>🌙</span> Dark Mode</button>
-            <button onclick="switchTab('settings')" class="nav-item w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-notion-hover dark:hover:bg-notion-darkHover group" data-target="settings"><span>⚙️</span> Settings</button>
+            <button id="theme-toggle-desktop" class="w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-200 dark:hover:bg-gray-800"><span>🌙</span> Dark Mode</button>
+            <button onclick="switchTab('settings')" class="nav-item w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-gray-200 dark:hover:bg-gray-800" data-target="settings"><span>⚙️</span> Settings</button>
         </div>
     </aside>
 
@@ -58,8 +57,8 @@
         <header class="md:hidden sticky top-0 z-40 bg-white/90 dark:bg-notion-darkBg/90 backdrop-blur-md border-b border-notion-border dark:border-notion-darkBorder px-4 py-3 flex justify-between items-center">
             <h1 id="page-title" class="font-semibold tracking-tight">🏠 Home</h1>
             <div class="flex gap-1">
-                <button id="theme-toggle-mobile" class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500">🌙</button>
-                <button onclick="switchTab('settings')" class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500">⚙️</button>
+                <button id="theme-toggle-mobile" class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">🌙</button>
+                <button onclick="switchTab('settings')" class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">⚙️</button>
             </div>
         </header>
 
@@ -70,13 +69,13 @@
                     <div class="mb-6">
                         <p class="text-gray-500 text-sm">Selamat Datang,</p>
                         <h2 id="home-greeting" class="text-2xl font-bold">Semangat Tesis! 🎓</h2>
-                        <p id="home-title" class="text-sm text-gray-400 mt-1 italic">Judul Tesis Anda...</p>
+                        <p id="home-title" class="text-sm text-gray-400 mt-1 italic">Judul Tesis...</p>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                         <div class="md:col-span-2 bg-notion-sidebar dark:bg-notion-darkSidebar rounded-xl p-5 border border-notion-border dark:border-notion-darkBorder">
                             <div class="flex justify-between items-end mb-3">
-                                <div><h2 class="text-lg font-bold">Progress Tesis</h2><p class="text-xs text-gray-500">Target Lulus: Juli 2026</p></div>
+                                <div><h2 class="text-lg font-bold">Progress</h2><p class="text-xs text-gray-500">Target Lulus: Juli 2026</p></div>
                                 <span id="progress-text" class="text-3xl font-bold font-mono">0%</span>
                             </div>
                             <div class="w-full bg-gray-200 rounded-full h-3 dark:bg-gray-700 overflow-hidden"><div id="progress-bar" class="bg-black dark:bg-white h-3 rounded-full transition-all duration-1000" style="width: 0%"></div></div>
@@ -88,14 +87,25 @@
                     </div>
 
                     <div class="mb-8">
-                        <h3 class="font-semibold mb-3">🔥 Aktivitas (20 Minggu Terakhir)</h3>
-                        <div class="overflow-x-auto pb-2"><div id="heatmap-container" class="flex gap-1 min-w-max"></div></div>
+                        <h3 class="font-semibold mb-3">🔥 Aktivitas (Kontribusi)</h3>
+                        <div class="overflow-x-auto pb-2">
+                            <div id="heatmap-months" class="flex text-[10px] text-gray-400 mb-1 pl-4 gap-4"></div>
+                            <div id="heatmap-container" class="flex gap-1 min-w-max"></div>
+                            <div class="flex items-center gap-2 mt-2 text-[10px] text-gray-400">
+                                <span>Less</span>
+                                <div class="w-3 h-3 bg-gray-200 rounded-sm"></div>
+                                <div class="w-3 h-3 bg-green-200 rounded-sm"></div>
+                                <div class="w-3 h-3 bg-green-400 rounded-sm"></div>
+                                <div class="w-3 h-3 bg-green-600 rounded-sm"></div>
+                                <span>More</span>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="mb-6">
                         <div class="flex justify-between items-center mb-3">
-                            <h3 class="font-semibold">Riwayat Pengerjaan</h3>
-                            <button onclick="openHistoryModal()" class="text-xs text-blue-500 hover:underline">Lihat Semua</button>
+                            <h3 class="font-semibold">Riwayat Terakhir</h3>
+                            <button onclick="window.openHistoryModal()" class="text-xs text-blue-500 hover:underline cursor-pointer">Lihat Semua</button>
                         </div>
                         <div class="border border-notion-border dark:border-notion-darkBorder rounded-lg overflow-hidden bg-white dark:bg-[#202020]">
                             <table class="w-full text-sm text-left">
@@ -110,25 +120,23 @@
 
                 <div id="view-roadmap" class="tab-content">
                     <h2 class="text-2xl font-bold mb-6 hidden md:block">Roadmap Tesis</h2>
-                    <div id="roadmap-container" class="space-y-4">
-                        <div class="text-center text-gray-500 py-10">Memuat data roadmap...</div>
-                    </div>
+                    <div id="roadmap-container" class="space-y-4 text-center text-gray-500 py-10">Memuat data...</div>
                 </div>
 
                 <div id="view-tasks" class="tab-content">
                     <h2 class="text-2xl font-bold mb-6 hidden md:block">Tasks & To-Do</h2>
                     <div class="bg-white dark:bg-[#202020] border border-notion-border dark:border-notion-darkBorder rounded-lg p-4 shadow-sm mb-6">
-                        <h3 class="text-sm font-bold text-gray-500 uppercase mb-3">Tambah Tugas Baru</h3>
+                        <h3 class="text-sm font-bold text-gray-500 uppercase mb-3">Tambah Tugas</h3>
                         <div class="flex flex-col gap-3">
-                            <input type="text" id="inp-task-name" placeholder="Apa yang harus dikerjakan?" class="w-full p-2 border border-gray-300 dark:border-gray-700 rounded bg-transparent text-sm">
+                            <input type="text" id="inp-task-name" placeholder="Nama Tugas..." class="w-full p-2 border rounded bg-transparent text-sm">
                             <div class="flex gap-2">
-                                <input type="date" id="inp-task-date" class="flex-1 p-2 border border-gray-300 dark:border-gray-700 rounded bg-transparent text-sm">
-                                <input type="time" id="inp-task-time" value="23:59" class="w-24 p-2 border border-gray-300 dark:border-gray-700 rounded bg-transparent text-sm">
-                                <select id="inp-task-cat" class="flex-1 p-2 border border-gray-300 dark:border-gray-700 rounded bg-transparent text-sm">
-                                    <option value="Bimbingan">Bimbingan</option><option value="Nulis">Nulis</option><option value="Baca Referensi">Baca Referensi</option><option value="Brainstorming">Brainstorming</option><option value="Revisi">Revisi</option><option value="Administrasi">Administrasi</option>
+                                <input type="date" id="inp-task-date" class="flex-1 p-2 border rounded bg-transparent text-sm">
+                                <input type="time" id="inp-task-time" value="23:59" class="w-24 p-2 border rounded bg-transparent text-sm">
+                                <select id="inp-task-cat" class="flex-1 p-2 border rounded bg-transparent text-sm">
+                                    <option value="Bimbingan">Bimbingan</option><option value="Nulis">Nulis</option><option value="Baca Referensi">Baca Referensi</option><option value="Revisi">Revisi</option><option value="Administrasi">Administrasi</option>
                                 </select>
                             </div>
-                            <button onclick="addTask()" class="bg-black dark:bg-white text-white dark:text-black py-2 rounded text-sm font-medium hover:opacity-90">Tambah Task</button>
+                            <button onclick="addTask()" class="bg-black dark:bg-white text-white dark:text-black py-2 rounded text-sm font-medium">Tambah</button>
                         </div>
                     </div>
                     <div id="task-list-container" class="space-y-2"></div>
@@ -136,113 +144,114 @@
 
                 <div id="view-calendar" class="tab-content">
                     <h2 class="text-2xl font-bold mb-4 hidden md:block">Kalender Akademik</h2>
-                    <div class="bg-white dark:bg-[#202020] border border-notion-border dark:border-notion-darkBorder rounded-xl p-4 md:p-6 shadow-sm">
+                    <div class="bg-white dark:bg-[#202020] border border-notion-border dark:border-notion-darkBorder rounded-xl p-4 shadow-sm">
                         <div class="flex justify-between items-center mb-6">
                             <button onclick="changeMonth(-1)" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded">◀</button>
                             <h3 class="font-bold text-lg" id="cal-month-name">Februari 2026</h3>
                             <button onclick="changeMonth(1)" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded">▶</button>
                         </div>
-                        <div class="grid grid-cols-7 gap-1 text-center mb-2 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                        <div class="grid grid-cols-7 gap-1 text-center mb-2 text-[10px] font-bold text-gray-400 uppercase">
                             <div>Min</div><div>Sen</div><div>Sel</div><div>Rab</div><div>Kam</div><div>Jum</div><div>Sab</div>
                         </div>
                         <div id="calendar-grid" class="grid grid-cols-7 gap-1 md:gap-2 text-center text-sm mb-6"></div>
-                        <div class="pt-4 border-t border-notion-border dark:border-notion-darkBorder">
-                            <h4 class="text-sm font-semibold mb-3 text-gray-500">Agenda Bulan Ini</h4>
-                            <div id="calendar-agenda-list" class="space-y-3"></div>
-                        </div>
                     </div>
                 </div>
 
                 <div id="view-files" class="tab-content">
-                    <h2 class="text-2xl font-bold mb-6 hidden md:block">Google Drive Files</h2>
-                    <div id="drop-zone" class="mb-6 p-8 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl text-center hover:bg-gray-50 dark:hover:bg-gray-800 transition cursor-pointer relative">
-                        <input type="file" id="inp-file-upload" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onchange="handleFileUpload(this.files)">
-                        <p class="text-3xl mb-2">📤</p>
-                        <p class="text-sm font-medium">Klik atau Tarik file ke sini</p>
-                        <p class="text-xs text-gray-400 mt-1">Otomatis upload ke Drive</p>
+                    <h2 class="text-2xl font-bold mb-6 hidden md:block">Drive Files</h2>
+                    <div class="mb-6 p-8 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl text-center hover:bg-gray-50 dark:hover:bg-gray-800 relative cursor-pointer">
+                        <input type="file" onchange="window.handleFileUpload(this.files)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                        <p class="text-3xl mb-2">📤</p><p class="text-sm">Klik atau Drag File ke sini</p>
                     </div>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="files-grid"></div>
                 </div>
 
                 <div id="view-settings" class="tab-content">
                     <h2 class="text-2xl font-bold mb-6">Pengaturan Profil</h2>
-                    <div class="max-w-lg space-y-6">
-                        <div class="bg-white dark:bg-[#202020] border border-notion-border dark:border-notion-darkBorder rounded-xl p-6 shadow-sm">
-                            <div class="flex flex-col items-center mb-6">
-                                <div class="relative w-20 h-20 mb-3">
-                                    <img id="settings-avatar" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" class="w-20 h-20 rounded-full object-cover border-2 border-gray-200">
-                                    <label for="inp-photo-upload" class="absolute bottom-0 right-0 bg-black text-white p-1 rounded-full cursor-pointer text-xs">📷</label>
-                                    <input type="file" id="inp-photo-upload" class="hidden" accept="image/*" onchange="uploadProfilePhoto(this.files)">
-                                </div>
-                                <h3 class="font-bold text-lg">Edit Profil</h3>
+                    <div class="max-w-lg bg-white dark:bg-[#202020] border border-notion-border dark:border-notion-darkBorder rounded-xl p-6">
+                        <div class="flex flex-col items-center mb-6">
+                            <div class="relative w-24 h-24 mb-3">
+                                <img id="settings-avatar" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" class="w-24 h-24 rounded-full object-cover border-2 border-gray-200">
+                                <label class="absolute bottom-0 right-0 bg-black text-white p-1.5 rounded-full cursor-pointer text-xs">
+                                    📷 <input type="file" class="hidden" accept="image/*" onchange="window.uploadProfilePhoto(this.files)">
+                                </label>
                             </div>
-                            <div class="space-y-4">
-                                <div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Nama</label><input type="text" id="prof-name" class="w-full p-2.5 border rounded-lg bg-transparent text-sm"></div>
-                                <div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Jurusan</label><input type="text" id="prof-major" class="w-full p-2.5 border rounded-lg bg-transparent text-sm"></div>
-                                <div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Judul Tesis</label><textarea id="prof-title" class="w-full p-2.5 border rounded-lg bg-transparent text-sm" rows="3"></textarea></div>
-                            </div>
-                            <div class="mt-6 pt-4 border-t border-gray-100 dark:border-gray-800"><button onclick="saveProfile()" class="w-full bg-black dark:bg-white text-white dark:text-black py-2.5 rounded-lg font-medium">Simpan Perubahan</button></div>
+                            <h3 class="font-bold">Edit Profil</h3>
+                        </div>
+                        <div class="space-y-4">
+                            <div><label class="block text-xs font-bold uppercase text-gray-500 mb-1">Nama</label><input type="text" id="prof-name" class="w-full p-2 border rounded bg-transparent"></div>
+                            <div><label class="block text-xs font-bold uppercase text-gray-500 mb-1">Jurusan</label><input type="text" id="prof-major" class="w-full p-2 border rounded bg-transparent"></div>
+                            <div><label class="block text-xs font-bold uppercase text-gray-500 mb-1">Judul Tesis</label><textarea id="prof-title" class="w-full p-2 border rounded bg-transparent" rows="2"></textarea></div>
+                            <button onclick="saveProfile()" class="w-full bg-black dark:bg-white text-white dark:text-black py-2.5 rounded font-bold mt-2">Simpan Profil</button>
                         </div>
                     </div>
                 </div>
-
             </div>
         </main>
 
-        <nav class="md:hidden fixed bottom-0 w-full bg-white dark:bg-[#202020] border-t border-notion-border dark:border-notion-darkBorder pb-safe pt-1 px-2 flex justify-between items-center z-50 text-[10px] font-medium text-gray-400 shadow-[0_-1px_2px_rgba(0,0,0,0.05)]">
-            <button onclick="switchTab('home')" class="nav-btn w-full p-2 flex flex-col items-center gap-1 text-black dark:text-white" data-target="home"><span class="text-lg">🏠</span> Home</button>
-            <button onclick="switchTab('roadmap')" class="nav-btn w-full p-2 flex flex-col items-center gap-1" data-target="roadmap"><span class="text-lg">🗺️</span> Map</button>
-            <button onclick="switchTab('tasks')" class="nav-btn w-full p-2 flex flex-col items-center gap-1" data-target="tasks"><span class="text-lg">✅</span> Task</button>
-            <button onclick="switchTab('calendar')" class="nav-btn w-full p-2 flex flex-col items-center gap-1" data-target="calendar"><span class="text-lg">📅</span> Cal</button>
-            <button onclick="switchTab('files')" class="nav-btn w-full p-2 flex flex-col items-center gap-1" data-target="files"><span class="text-lg">📂</span> File</button>
+        <nav class="md:hidden fixed bottom-0 w-full bg-white dark:bg-[#202020] border-t border-notion-border dark:border-notion-darkBorder pb-safe pt-1 px-2 flex justify-between items-center z-50 text-[10px] text-gray-400">
+            <button onclick="switchTab('home')" class="nav-btn p-2 flex flex-col items-center gap-1 text-black dark:text-white" data-target="home"><span class="text-lg">🏠</span> Home</button>
+            <button onclick="switchTab('roadmap')" class="nav-btn p-2 flex flex-col items-center gap-1" data-target="roadmap"><span class="text-lg">🗺️</span> Map</button>
+            <button onclick="switchTab('tasks')" class="nav-btn p-2 flex flex-col items-center gap-1" data-target="tasks"><span class="text-lg">✅</span> Task</button>
+            <button onclick="switchTab('calendar')" class="nav-btn p-2 flex flex-col items-center gap-1" data-target="calendar"><span class="text-lg">📅</span> Cal</button>
+            <button onclick="switchTab('files')" class="nav-btn p-2 flex flex-col items-center gap-1" data-target="files"><span class="text-lg">📂</span> File</button>
         </nav>
     </div>
 
+    <div id="modal-day-detail" class="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm hidden">
+        <div class="bg-white dark:bg-[#202020] w-11/12 max-w-sm rounded-xl p-5 shadow-2xl">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="modal-day-title" class="font-bold text-lg">Detail Tanggal</h3>
+                <button onclick="document.getElementById('modal-day-detail').classList.add('hidden')" class="text-2xl text-gray-400">×</button>
+            </div>
+            <div id="modal-day-content" class="space-y-3 max-h-60 overflow-y-auto"></div>
+        </div>
+    </div>
+
     <div id="modal-complete" class="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm hidden">
-        <div class="bg-white dark:bg-[#202020] w-11/12 max-w-sm rounded-xl p-6 shadow-2xl animate-scaleIn">
-            <div class="text-center mb-6">
-                <div class="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-2xl mx-auto mb-3">✅</div>
+        <div class="bg-white dark:bg-[#202020] w-11/12 max-w-sm rounded-xl p-6 shadow-2xl">
+            <div class="text-center mb-4">
+                <div class="w-10 h-10 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-xl mx-auto mb-2">✅</div>
                 <h3 class="font-bold">Selesaikan Tugas?</h3>
-                <p id="modal-task-name" class="text-sm text-gray-500 italic mt-1"></p>
+                <p id="modal-task-name" class="text-sm text-gray-500"></p>
             </div>
-            <div class="space-y-4">
-                <div><label class="block text-xs font-bold text-gray-400 uppercase mb-1">Jam Mulai</label><input type="time" id="modal-start-time" class="w-full p-3 border rounded-lg text-center font-mono bg-transparent"></div>
-                <div><label class="block text-xs font-bold text-gray-400 uppercase mb-1">Jam Selesai</label><input type="time" id="modal-end-time" class="w-full p-3 border rounded-lg text-center font-mono bg-transparent"></div>
+            <div class="space-y-3">
+                <div><label class="text-xs font-bold uppercase text-gray-400">Jam Mulai</label><input type="time" id="modal-start-time" class="w-full p-2 border rounded text-center"></div>
+                <div><label class="text-xs font-bold uppercase text-gray-400">Jam Selesai</label><input type="time" id="modal-end-time" class="w-full p-2 border rounded text-center"></div>
             </div>
-            <div class="grid grid-cols-2 gap-3 mt-6">
-                <button onclick="closeModal('modal-complete')" class="py-2.5 rounded-lg border hover:bg-gray-50 dark:hover:bg-gray-800 text-sm">Batal</button>
-                <button onclick="submitCompletion()" class="py-2.5 rounded-lg bg-black dark:bg-white text-white dark:text-black text-sm">Simpan</button>
+            <div class="grid grid-cols-2 gap-3 mt-5">
+                <button onclick="document.getElementById('modal-complete').classList.add('hidden')" class="py-2 border rounded text-sm">Batal</button>
+                <button onclick="submitCompletion()" class="py-2 bg-black dark:bg-white text-white dark:text-black rounded text-sm">Simpan</button>
             </div>
         </div>
     </div>
 
     <div id="modal-history" class="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm hidden">
-        <div class="bg-white dark:bg-[#202020] w-11/12 max-w-2xl rounded-xl p-6 shadow-2xl h-[80vh] flex flex-col">
+        <div class="bg-white dark:bg-[#202020] w-11/12 max-w-2xl rounded-xl p-6 h-[80vh] flex flex-col shadow-2xl">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="font-bold text-lg">Histori Lengkap</h3>
-                <button onclick="closeModal('modal-history')" class="text-2xl text-gray-400">×</button>
+                <h3 class="font-bold text-lg">Semua Riwayat</h3>
+                <button onclick="document.getElementById('modal-history').classList.add('hidden')" class="text-2xl text-gray-400">×</button>
             </div>
             <div class="flex-1 overflow-y-auto border border-notion-border dark:border-notion-darkBorder rounded-lg">
                 <table class="w-full text-sm text-left">
-                    <thead class="bg-gray-50 dark:bg-[#252525] sticky top-0">
-                        <tr><th class="p-3">Tanggal</th><th class="p-3">Aktivitas</th><th class="p-3">Jam</th><th class="p-3 text-right">Durasi</th></tr>
-                    </thead>
+                    <thead class="bg-gray-50 dark:bg-[#252525] sticky top-0"><tr><th class="p-3">Tanggal</th><th class="p-3">Aktivitas</th><th class="p-3">Jam</th><th class="p-3 text-right">Durasi</th></tr></thead>
                     <tbody id="full-history-body" class="divide-y divide-notion-border dark:divide-notion-darkBorder"></tbody>
                 </table>
             </div>
         </div>
     </div>
 
-    <div id="modal-alert" class="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 hidden">
-        <div class="bg-white dark:bg-[#202020] w-10/12 max-w-xs rounded-xl p-5 shadow-2xl text-center">
-            <p id="alert-msg" class="mb-4 font-medium"></p>
-            <button onclick="document.getElementById('modal-alert').classList.add('hidden')" class="bg-black text-white px-4 py-2 rounded text-sm">OK</button>
+    <div id="modal-info" class="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 hidden">
+        <div class="bg-white dark:bg-[#202020] w-10/12 max-w-xs rounded-xl p-5 shadow-2xl text-center transform transition-all scale-100">
+            <div class="text-3xl mb-2">ℹ️</div>
+            <p id="modal-info-msg" class="mb-4 font-medium text-sm"></p>
+            <button onclick="document.getElementById('modal-info').classList.add('hidden')" class="bg-black dark:bg-white text-white dark:text-black px-6 py-2 rounded-full text-sm font-bold">OK</button>
         </div>
     </div>
 
     <script src="script.js"></script>
     <script>
-        // Tab & Theme Logic
+        // Tab Switcher
         window.switchTab = function(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.getElementById('view-' + tabId)?.classList.add('active');
@@ -253,10 +262,13 @@
                 btn.classList.toggle('text-black', isActive);
                 btn.classList.toggle('dark:text-white', isActive);
                 btn.classList.toggle('text-gray-400', !isActive);
-                if(btn.classList.contains('nav-item')) btn.classList.toggle('bg-gray-200', isActive);
-                if(btn.classList.contains('nav-item')) btn.classList.toggle('dark:bg-gray-800', isActive);
+                if(btn.classList.contains('nav-item')) {
+                    btn.classList.toggle('bg-gray-200', isActive);
+                    btn.classList.toggle('dark:bg-gray-800', isActive);
+                }
             });
         };
+        // Theme Toggle
         const toggleTheme = () => {
             document.documentElement.classList.toggle('dark');
             localStorage.theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
