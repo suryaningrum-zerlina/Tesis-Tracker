@@ -49,19 +49,20 @@
 
     <div class="flex-1 flex flex-col h-full overflow-hidden relative w-full">
         <header class="md:hidden sticky top-0 z-40 bg-white/90 dark:bg-notion-darkBg/90 backdrop-blur-md border-b border-notion-border dark:border-notion-darkBorder px-4 py-3 flex justify-between items-center">
-            <div><h1 id="page-title" class="font-semibold tracking-tight">🏠 Home</h1><p id="header-subtitle" class="text-[10px] text-gray-500 truncate max-w-[200px]"></p></div>
-            <div class="flex gap-1"><button id="theme-toggle-mobile" class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">🌙</button><button onclick="switchTab('settings')" class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">⚙️</button></div>
+            <div>
+                <h1 id="page-title" class="font-semibold tracking-tight">🏠 Home</h1>
+                <p id="header-subtitle" class="text-[10px] text-gray-500 truncate max-w-[200px]"></p>
+            </div>
+            <div class="flex gap-1">
+                <button id="theme-toggle-mobile" class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">🌙</button>
+                <button onclick="switchTab('settings')" class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">⚙️</button>
+            </div>
         </header>
 
         <main class="flex-1 overflow-y-auto p-4 md:p-8 pb-24 md:pb-8">
             <div class="max-w-5xl mx-auto">
                 <div id="view-home" class="tab-content active">
                     <div class="mb-6"><p class="text-gray-500 text-sm">Halo, <span id="home-name">Mahasiswa</span> 👋</p><h2 class="text-2xl font-bold">Progress Tesis</h2><p id="home-title" class="text-sm text-gray-400 mt-1 italic">...</p></div>
-                    
-                    <div id="home-priority-container" class="mb-6 hidden">
-                        <h3 class="font-semibold mb-3 flex items-center gap-2">⭐ Prioritas Utama</h3>
-                        <div id="home-priority-list" class="space-y-2"></div>
-                    </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                         <div class="md:col-span-2 bg-notion-sidebar dark:bg-notion-darkSidebar rounded-xl p-5 border border-notion-border dark:border-notion-darkBorder">
@@ -73,6 +74,12 @@
                         </div>
                     </div>
                     <div class="mb-8"><h3 class="font-semibold mb-3">🔥 Heatmap</h3><div class="overflow-x-auto pb-2"><div id="heatmap-months" class="flex text-[10px] text-gray-400 mb-1 pl-4 gap-4"></div><div id="heatmap-container" class="flex gap-1 min-w-max"></div></div></div>
+                                                            
+                    <div id="home-priority-container" class="mb-6 hidden">
+                        <h3 class="font-semibold mb-3 flex items-center gap-2">⭐ Prioritas Utama</h3>
+                        <div id="home-priority-list" class="space-y-2"></div>
+                    </div>
+
                     <div class="mb-6"><div class="flex justify-between items-center mb-3"><h3 class="font-semibold">Riwayat Terakhir</h3><button onclick="window.openHistoryModal()" class="text-xs text-blue-500 hover:underline">Lihat Semua</button></div><div class="border border-notion-border dark:border-notion-darkBorder rounded-lg overflow-hidden bg-white dark:bg-[#202020]"><table class="w-full text-sm text-left"><thead class="bg-gray-50 dark:bg-[#252525] text-gray-500 border-b border-notion-border dark:border-notion-darkBorder"><tr><th class="px-4 py-2 font-medium">Tanggal</th><th class="px-4 py-2 font-medium">Aktivitas</th><th class="px-4 py-2 font-medium text-right">Durasi</th></tr></thead><tbody id="recent-logs-body" class="divide-y divide-notion-border dark:divide-notion-darkBorder"></tbody></table></div></div>
                 </div>
 
