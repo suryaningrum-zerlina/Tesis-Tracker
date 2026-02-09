@@ -556,29 +556,6 @@ window.saveRoadmapLink = async () => {
     loadData();
 };
 
-window.openCompleteModal = (id, name, cat) => {
-    currentCompletingTask = {id, name, cat};
-    document.getElementById('modal-task-name').innerText = name;
-    
-    const now = new Date();
-    document.getElementById('modal-start-time').value = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-    now.setHours(now.getHours()+1);
-    document.getElementById('modal-end-time').value = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-    
-    document.getElementById('modal-complete').classList.remove('hidden');
-};
-
-window.submitCompletion = async () => {
-    const start = document.getElementById('modal-start-time').value;
-    const end = document.getElementById('modal-end-time').value;
-    document.getElementById('modal-complete').classList.add('hidden');
-    await fetch(API_URL, {method:'POST', body:JSON.stringify({
-        action:'completeTask', taskId:currentCompletingTask.id, taskName:currentCompletingTask.name, category:currentCompletingTask.cat,
-        date: new Date().toISOString().split('T')[0], startTime:start, endTime:end
-    })});
-    loadData();
-};
-
 window.openHistoryModal = () => {
     const container = document.getElementById('full-history-body'); // Ini sekarang kita ganti jadi Div container, bukan Tbody
     if(!container) return;
@@ -636,6 +613,8 @@ window.openHistoryModal = () => {
             const end = log['Jam Selesai'] || '-';
             const timeRange = (start !== '-' && end !== '-') ? `${start} - ${end}` : '-';
             const dur = formatDuration(log['Durasi (Menit)'] || 0);
+            const link = log['Link'];
+            const linkLabel = link? 'Link ↗' ; '';
 
             rowsHtml += `
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3 border-b border-gray-100 dark:border-gray-800 last:border-0 hover:bg-gray-50 dark:hover:bg-[#2C2C2C] transition">
@@ -644,7 +623,7 @@ window.openHistoryModal = () => {
                             <span class="text-xs font-mono bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded text-gray-500">${log['Tanggal']}</span>
                             <span class="text-[10px] uppercase tracking-wider font-bold text-blue-500">${log['Kategori']}</span>
                         </div>
-                        <div class="font-medium text-sm text-gray-800 dark:text-gray-200">${log['Aktivitas']}</div>
+                        <div class="font-medium text-sm text-gray-800 dark:text-gray-200">${log['Aktivitas']} <a href="${link}" target="_blank" class="text-blue-500 text-xs">${linkLabel}</a></div>
                     </div>
                     <div class="text-right flex items-center justify-end gap-4 text-xs">
                         <div class="font-mono text-gray-400">${timeRange}</div>
