@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('inp-task-date').valueAsDate = new Date();
     loadData();
 });
-
+//
 async function loadData() {
     try {
         const res = await fetch(`${API_URL}?action=getAllData`);
