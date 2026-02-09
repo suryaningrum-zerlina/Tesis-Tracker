@@ -162,7 +162,31 @@ function renderHome() {
         }
         container.appendChild(col);
     }
-
+// 3. PRIORITY TASKS WIDGET (NEW)
+    const priorityList = document.getElementById('home-priority-list');
+    const priorityContainer = document.getElementById('home-priority-container');
+    priorityList.innerHTML = '';
+    
+    const prioTasks = appData.tasks.filter(t => t.Status !== 'Done' && t.Priority === 'High')
+        .sort((a,b) => new Date(a.Deadline) - new Date(b.Deadline));
+    
+    if (prioTasks.length > 0) {
+        priorityContainer.classList.remove('hidden');
+        prioTasks.slice(0, 3).forEach(t => {
+            const countdown = getCountdown(t.Deadline, t['Jam Deadline']);
+            priorityList.innerHTML += `
+                <div class="bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900 p-3 rounded-lg flex justify-between items-center">
+                    <div>
+                        <p class="font-bold text-sm text-red-800 dark:text-red-300">${t.Task}</p>
+                        <p class="text-xs text-red-600 dark:text-red-400">Deadline: ${countdown}</p>
+                    </div>
+                    <button onclick="window.openCompleteModal('${t.ID}','${t.Task}','${t.Kategori}')" class="bg-white dark:bg-black text-xs px-2 py-1 rounded shadow text-gray-600">Done</button>
+                </div>
+            `;
+        });
+    } else {
+        priorityContainer.classList.add('hidden');
+    }
     // 4. Recent Logs
     const tbody = document.getElementById('recent-logs-body');
     if(tbody) {
@@ -252,19 +276,66 @@ function renderRoadmap() {
 function renderTasks() {
     const list = document.getElementById('task-list-container');
     list.innerHTML = '';
-    appData.tasks.filter(t=>t.Status!=='Done').forEach(t => {
+    
+    let tasks = appData.tasks.filter(t => t.Status !== 'Done');
+    
+    // Sort: High Priority first, then Deadline Ascending
+    tasks.sort((a, b) => {
+        if (a.Priority === 'High' && b.Priority !== 'High') return -1;
+        if (a.Priority !== 'High' && b.Priority === 'High') return 1;
+        return new Date(a.Deadline + 'T' + (a['Jam Deadline']||'00:00')) - new Date(b.Deadline + 'T' + (b['Jam Deadline']||'00:00'));
+    });
+
+    if(tasks.length === 0) { list.innerHTML = '<p class="text-center text-gray-400 py-10">Tidak ada tugas aktif.</p>'; return; }
+
+    tasks.forEach(task => {
+        const time = task['Jam Deadline'] || '23:59';
+        const countdown = getCountdown(task.Deadline, time);
+        const isHigh = task.Priority === 'High';
+        
+        const borderClass = isHigh ? 'border-l-4 border-l-red-500' : 'border-l-4 border-l-gray-300 dark:border-l-gray-600';
+        const bgClass = isHigh ? 'bg-red-50/50 dark:bg-red-900/10' : 'bg-white dark:bg-[#202020]';
+        
+        let linkBtn = '';
+        if(task.Link) linkBtn = `<a href="${task.Link}" target="_blank" class="text-blue-500 text-xs">Link ↗</a>`;
+
         list.innerHTML += `
-            <div class="bg-white dark:bg-[#202020] border border-notion-border dark:border-notion-darkBorder rounded-lg p-3 flex items-center gap-3 shadow-sm hover:border-gray-400 transition">
-                <input type="checkbox" class="w-5 h-5 cursor-pointer accent-black" onclick="window.openCompleteModal('${t.ID}','${t.Task}','${t.Kategori}')">
-                <div class="flex-1">
-                    <div class="font-medium text-sm">${t.Task}</div>
-                    <div class="flex gap-2 mt-1">
-                        <span class="text-[10px] bg-gray-100 dark:bg-gray-700 px-1 rounded">📅 ${t.Deadline} ${t['Jam Deadline']||''}</span>
-                        <span class="text-[10px] bg-blue-50 text-blue-600 px-1 rounded">${t.Kategori}</span>
+            <div class="${bgClass} border border-notion-border dark:border-notion-darkBorder rounded-lg p-3 shadow-sm ${borderClass} relative group">
+                <div class="flex items-start gap-3">
+                    <input type="checkbox" class="w-5 h-5 mt-1 cursor-pointer accent-black" 
+                           onclick="window.openCompleteModal('${task.ID}','${task.Task}','${task.Kategori}', '${task.Link||''}')">
+                    <div class="flex-1">
+                        <div class="flex justify-between">
+                            <h4 class="font-bold text-sm ${isHigh ? 'text-red-700 dark:text-red-400':''}">${task.Task}</h4>
+                            <button onclick="deleteTask('${task.ID}')" class="text-gray-300 hover:text-red-500 text-xs">×</button>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-2 mt-1">
+                            <span class="text-[10px] bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded flex items-center gap-1">
+                                ⏳ ${countdown}
+                            </span>
+                            <span class="text-[10px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded">${task.Kategori}</span>
+                            ${linkBtn}
+                        </div>
                     </div>
                 </div>
             </div>`;
     });
+}
+
+function getCountdown(dateStr, timeStr) {
+    const target = new Date(`${dateStr}T${timeStr}:00`);
+    const now = new Date();
+    const diffMs = target - now;
+    
+    if (diffMs < 0) return "Terlewat";
+    
+    const diffHrs = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffHrs / 24);
+    
+    if (diffDays > 30) return `${Math.floor(diffDays/30)} Bulan lagi`;
+    if (diffDays > 0) return `${diffDays} Hari lagi`;
+    if (diffHrs > 0) return `${diffHrs} Jam lagi`;
+    return "< 1 Jam";
 }
 
 function renderCalendar(month, year) {
@@ -371,6 +442,88 @@ window.addTask = async () => {
     
     document.getElementById('inp-task-name').value = '';
     await fetch(API_URL, {method:'POST', body:JSON.stringify({action:'addTask', task:name, deadline:date, time:time, category:cat})});
+    loadData();
+};
+window.submitAddTask = async () => {
+    const payload = {
+        action: 'addTask',
+        task: document.getElementById('add-task-name').value,
+        deadline: document.getElementById('add-task-date').value,
+        time: document.getElementById('add-task-time').value,
+        category: document.getElementById('add-task-cat').value,
+        priority: document.getElementById('add-task-prio').value,
+        link: document.getElementById('add-task-link').value
+    };
+    if(!payload.task || !payload.deadline) return alert("Isi nama dan tanggal!");
+    
+    window.closeModal('modal-add-task');
+    // Clear form
+    document.getElementById('add-task-name').value = '';
+    
+    await fetch(API_URL, {method:'POST', body:JSON.stringify(payload)});
+    loadData();
+};
+
+window.submitLogActivity = async () => {
+    const payload = {
+        action: 'logActivity',
+        taskName: document.getElementById('log-task-name').value,
+        date: document.getElementById('log-task-date').value,
+        startTime: document.getElementById('log-start-time').value,
+        endTime: document.getElementById('log-end-time').value,
+        category: document.getElementById('log-task-cat').value,
+        link: document.getElementById('log-task-link').value
+    };
+    if(!payload.taskName || !payload.date) return alert("Lengkapi data!");
+    
+    window.closeModal('modal-log-activity');
+    document.getElementById('log-task-name').value = '';
+    
+    await fetch(API_URL, {method:'POST', body:JSON.stringify(payload)});
+    loadData();
+};
+
+window.openCompleteModal = (id, name, cat, link) => {
+    currentCompletingTask = {id, name, cat, link};
+    document.getElementById('modal-complete-name').innerText = name;
+    
+    // Auto time
+    const now = new Date();
+    const hh = String(now.getHours()).padStart(2,'0'); const mm = String(now.getMinutes()).padStart(2,'0');
+    document.getElementById('comp-start-time').value = `${hh}:${mm}`;
+    // End +1h default
+    now.setHours(now.getHours()+1);
+    const hh2 = String(now.getHours()).padStart(2,'0');
+    document.getElementById('comp-end-time').value = `${hh2}:${mm}`;
+    
+    // Pre-fill link if exists
+    document.getElementById('comp-link').value = link || '';
+    
+    document.getElementById('modal-complete').classList.remove('hidden');
+};
+
+window.submitCompletion = async () => {
+    const payload = {
+        action: 'completeTask',
+        taskId: currentCompletingTask.id,
+        taskName: currentCompletingTask.name,
+        category: currentCompletingTask.cat,
+        date: new Date().toISOString().split('T')[0],
+        startTime: document.getElementById('comp-start-time').value,
+        endTime: document.getElementById('comp-end-time').value,
+        link: document.getElementById('comp-link').value // New link or edited
+    };
+    
+    window.closeModal('modal-complete');
+    await fetch(API_URL, {method:'POST', body:JSON.stringify(payload)});
+    loadData();
+};
+
+window.deleteTask = async (id) => {
+    if(!confirm("Hapus tugas ini?")) return;
+    // Optimistic UI remove
+    loadData(); // Reload to sync
+    await fetch(API_URL, {method:'POST', body:JSON.stringify({action:'deleteTask', taskId:id})});
     loadData();
 };
 
