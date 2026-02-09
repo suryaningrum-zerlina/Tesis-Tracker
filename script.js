@@ -614,7 +614,7 @@ window.openHistoryModal = () => {
             const timeRange = (start !== '-' && end !== '-') ? `${start} - ${end}` : '-';
             const dur = formatDuration(log['Durasi (Menit)'] || 0);
             const link = log['Link'];
-            const linkLabel = link? 'Link ↗' ; '';
+            const linkLabel = link? 'Link ↗' : '';
 
             rowsHtml += `
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3 border-b border-gray-100 dark:border-gray-800 last:border-0 hover:bg-gray-50 dark:hover:bg-[#2C2C2C] transition">
