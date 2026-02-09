@@ -9,9 +9,8 @@ let currentRoadmapItem = null;
 let pendingPhotoData = null;
 
 /* INIT */
-document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('inp-task-date').valueAsDate = new Date();
-    loadData();
+document.addEventListener('DOMContentLoaded', () => { 
+    loadData(); 
 });
 //function
 async function loadData() {
