@@ -245,15 +245,15 @@
     <div id="modal-history" class="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm hidden">
         <div class="bg-white dark:bg-[#202020] w-11/12 max-w-2xl rounded-xl p-6 h-[80vh] flex flex-col shadow-2xl">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="font-bold text-lg">Semua Riwayat</h3>
-                <button onclick="document.getElementById('modal-history').classList.add('hidden')" class="text-2xl">×</button>
+                <div>
+                    <h3 class="font-bold text-lg">Riwayat Pengerjaan</h3>
+                    <p class="text-xs text-gray-500">Dikelompokkan per Pekan</p>
+                </div>
+                <button onclick="document.getElementById('modal-history').classList.add('hidden')" class="text-2xl text-gray-400 hover:text-black dark:hover:text-white transition">×</button>
             </div>
-            <div class="flex-1 overflow-y-auto border border-notion-border dark:border-notion-darkBorder rounded-lg">
-                <table class="w-full text-sm text-left">
-                    <thead class="bg-gray-50 dark:bg-[#252525] sticky top-0"><tr><th class="p-3">Tanggal</th><th class="p-3">Aktivitas</th><th class="p-3">Waktu</th><th class="p-3 text-right">Durasi</th></tr></thead>
-                    <tbody id="full-history-body" class="divide-y divide-notion-border dark:divide-notion-darkBorder"></tbody>
-                </table>
-            </div>
+            
+            <div id="full-history-body" class="flex-1 overflow-y-auto pr-2 custom-scrollbar">
+                </div>
         </div>
     </div>
 
