@@ -152,10 +152,31 @@ function renderHome() {
 
     // 4. Recent Logs
     const tbody = document.getElementById('recent-logs-body');
-    tbody.innerHTML = '';
-    appData.logs.slice(-5).reverse().forEach(log => {
-        tbody.innerHTML += `<tr><td class="px-4 py-3 text-gray-500 text-xs">${log.Tanggal}</td><td class="px-4 py-3 text-sm font-medium">${log.Aktivitas}</td><td class="px-4 py-3 text-right font-mono text-xs">${log[4]||log['Durasi (Menit)']} m</td></tr>`;
-    });
+    if(tbody) {
+        tbody.innerHTML = '';
+        const recentLogs = appData.logs.slice(-5).reverse(); 
+        
+        if (recentLogs.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-xs text-gray-400">Belum ada aktivitas.</td></tr>';
+        }
+
+        recentLogs.forEach(log => {
+            const date = log['Tanggal'] || '-';
+            const act = log['Aktivitas'] || '-';
+            const dur = log['Durasi (Menit)'] || 0;
+            const cat = log['Kategori'] || '';
+
+            tbody.innerHTML += `
+                <tr>
+                    <td class="px-4 py-3 text-gray-500 text-xs whitespace-nowrap">${date}</td>
+                    <td class="px-4 py-3">
+                        <div class="font-medium text-sm truncate max-w-[150px]">${act}</div>
+                        <div class="text-[10px] text-gray-400">${cat}</div>
+                    </td>
+                    <td class="px-4 py-3 text-right font-mono text-xs">${dur} m</td>
+                </tr>`;
+        });
+    }
 }
 
 function renderRoadmap() {
@@ -392,12 +413,49 @@ window.submitCompletion = async () => {
     loadData();
 };
 
+// 1. Perbaiki Tampilan Riwayat Lengkap (Modal)
 window.openHistoryModal = () => {
     const tbody = document.getElementById('full-history-body');
+    if(!tbody) return;
+    
     tbody.innerHTML = '';
-    appData.logs.slice().reverse().forEach(log => {
-        tbody.innerHTML += `<tr><td class="p-3 text-gray-500">${log.Tanggal}</td><td class="p-3"><div>${log.Aktivitas}</div><div class="text-xs text-gray-400">${log.Kategori}</div></td><td class="p-3 font-mono text-xs">${log[2]||'-'} - ${log[3]||'-'}</td><td class="p-3 text-right font-bold">${log[4]} m</td></tr>`;
+    
+    // Sort log terbaru di atas
+    const logs = appData.logs.slice().sort((a,b) => new Date(b.Tanggal) - new Date(a.Tanggal));
+    
+    if (logs.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-gray-400">Belum ada riwayat.</td></tr>';
+        document.getElementById('modal-history').classList.remove('hidden');
+        return;
+    }
+
+    logs.forEach(log => {
+        // PEMBACAAN DATA YANG LEBIH AMAN
+        // Menggunakan bracket notation ['Nama Kolom'] sesuai header di Sheet
+        const date = log['Tanggal'] || log.Date || '-';
+        const act = log['Aktivitas'] || log.Task || '-';
+        const cat = log['Kategori'] || '-';
+        
+        // Format Waktu: Jam Mulai - Jam Selesai
+        const start = log['Jam Mulai'] || '-';
+        const end = log['Jam Selesai'] || '-';
+        const timeRange = (start !== '-' && end !== '-') ? `${start} - ${end}` : '-';
+        
+        // Format Durasi
+        const dur = log['Durasi (Menit)'] || 0;
+
+        tbody.innerHTML += `
+            <tr class="hover:bg-gray-50 dark:hover:bg-[#2C2C2C] transition">
+                <td class="p-3 text-gray-500 text-xs align-top whitespace-nowrap">${date}</td>
+                <td class="p-3 align-top">
+                    <div class="font-medium text-sm text-gray-800 dark:text-gray-200">${act}</div>
+                    <div class="text-[10px] bg-gray-100 dark:bg-gray-700 text-gray-500 px-1.5 py-0.5 rounded w-max mt-1">${cat}</div>
+                </td>
+                <td class="p-3 font-mono text-xs text-gray-500 align-top whitespace-nowrap">${timeRange}</td>
+                <td class="p-3 text-right font-bold text-sm align-top">${dur} m</td>
+            </tr>`;
     });
+    
     document.getElementById('modal-history').classList.remove('hidden');
 };
 
