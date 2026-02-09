@@ -77,7 +77,15 @@
                         </div>
                     </div>
                     <div class="mb-8"><h3 class="font-semibold mb-3">🔥 Heatmap</h3><div class="overflow-x-auto pb-2"><div id="heatmap-months" class="flex text-[10px] text-gray-400 mb-1 pl-4 gap-4"></div><div id="heatmap-container" class="flex gap-1 min-w-max"></div></div></div>
-                                                            
+
+                    <div id="home-roadmap-summary" class="flex flex-wrap gap-2 mb-8">
+                        </div>
+                    
+                    <div id="home-events-container" class="mb-8 hidden">
+                        <h3 class="font-semibold mb-3 flex items-center gap-2">📅 Agenda Terdekat</h3>
+                        <div id="home-events-list" class="space-y-2"></div>
+                    </div>
+                    
                     <div id="home-priority-container" class="mb-6 hidden">
                         <h3 class="font-semibold mb-3 flex items-center gap-2">⭐ Prioritas Utama</h3>
                         <div id="home-priority-list" class="space-y-2"></div>
@@ -117,12 +125,31 @@
             </div>
         </main>
 
-        <nav class="md:hidden fixed bottom-0 w-full bg-white dark:bg-[#202020] border-t border-notion-border dark:border-notion-darkBorder pb-safe pt-1 px-2 flex justify-between items-center z-50 text-[10px] text-gray-400">
+        <!-- <nav class="md:hidden fixed bottom-0 w-full bg-white dark:bg-[#202020] border-t border-notion-border dark:border-notion-darkBorder pb-safe pt-1 px-2 flex justify-between items-center z-50 text-[10px] text-gray-400">
             <button onclick="switchTab('home')" class="nav-btn p-2 flex flex-col items-center gap-1 text-black dark:text-white" data-target="home"><span>🏠</span> Home</button>
             <button onclick="switchTab('roadmap')" class="nav-btn p-2 flex flex-col items-center gap-1" data-target="roadmap"><span>🗺️</span> Map</button>
             <button onclick="switchTab('tasks')" class="nav-btn p-2 flex flex-col items-center gap-1" data-target="tasks"><span>✅</span> Task</button>
             <button onclick="switchTab('calendar')" class="nav-btn p-2 flex flex-col items-center gap-1" data-target="calendar"><span>📅</span> Cal</button>
             <button onclick="switchTab('files')" class="nav-btn p-2 flex flex-col items-center gap-1" data-target="files"><span>📂</span> File</button>
+        </nav> -->
+        
+        <nav class="md:hidden fixed bottom-0 w-full bg-white dark:bg-[#202020] border-t border-notion-border dark:border-notion-darkBorder pb-safe pt-2 px-2 flex justify-between items-center z-50 text-[10px] text-gray-400">
+            <button onclick="switchTab('home')" class="nav-btn flex-1 flex flex-col items-center gap-1 text-black dark:text-white" data-target="home">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                <span>Home</span>
+            </button>
+            <button onclick="switchTab('roadmap')" class="nav-btn flex-1 flex flex-col items-center gap-1" data-target="roadmap">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A2 2 0 013 15.485V5.111a2 2 0 011.553-1.954l5.447-1.362a2 2 0 011.232 0l5.447 1.362A2 2 0 0118 5.111v10.374a2 2 0 01-1.053 1.764L11.5 20a2 2 0 01-2.5 0z"/></svg>
+                <span>Roadmap</span>
+            </button>
+            <button onclick="switchTab('tasks')" class="nav-btn flex-1 flex flex-col items-center gap-1" data-target="tasks">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                <span>Tasks</span>
+            </button>
+            <button onclick="switchTab('calendar')" class="nav-btn flex-1 flex flex-col items-center gap-1" data-target="calendar">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                <span>Calendar</span>
+            </button>
         </nav>
     </div>
 
@@ -152,6 +179,21 @@
         </div>
     </div>
 
+    <div id="modal-add-event" class="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm hidden">
+        <div class="bg-white dark:bg-[#202020] w-11/12 max-w-sm rounded-xl p-6 shadow-2xl">
+            <h3 class="font-bold text-lg mb-4 text-notion-blueText">📅 Tambah Event Baru</h3>
+            <div class="space-y-3">
+                <input type="text" id="event-name" placeholder="Nama Event (Misal: Sempro)" class="w-full p-2 border rounded bg-transparent text-sm">
+                <input type="date" id="event-date" class="w-full p-2 border rounded bg-transparent text-sm">
+                <input type="time" id="event-time" class="w-full p-2 border rounded bg-transparent text-sm">
+            </div>
+            <div class="grid grid-cols-2 gap-3 mt-6">
+                <button onclick="closeModal('modal-add-event')" class="py-2 border rounded text-sm">Batal</button>
+                <button onclick="submitAddEvent()" class="py-2 bg-black dark:bg-white text-white dark:text-black rounded text-sm font-bold">Simpan</button>
+            </div>
+        </div>
+    </div>
+    
     <div id="modal-log-activity" class="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm hidden">
         <div class="bg-white dark:bg-[#202020] w-11/12 max-w-sm rounded-xl p-6 shadow-2xl">
             <h3 class="font-bold text-lg mb-4">Catat Record Aktivitas</h3>
