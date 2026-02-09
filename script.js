@@ -62,6 +62,19 @@ function renderProfile() {
     document.getElementById('settings-avatar').src = url;
 }
 
+function formatDuration(minutes) {
+    const m = parseInt(minutes) || 0;
+    if (m === 0) return '-';
+    
+    const h = Math.floor(m / 60);
+    const min = m % 60;
+    
+    if (h > 0) {
+        return `${h}h${min > 0 ? ' ' + min + 'm' : ''}`;
+    }
+    return `${min}m`;
+}
+
 function renderHome() {
     // 1. Progress from Roadmap Checklist
     const items = appData.roadmap || [];
@@ -163,7 +176,8 @@ function renderHome() {
         recentLogs.forEach(log => {
             const date = log['Tanggal'] || '-';
             const act = log['Aktivitas'] || '-';
-            const dur = log['Durasi (Menit)'] || 0;
+            const durRaw = log['Durasi (Menit)'] || 0;
+            const durFormatted = formatDuration(durRaw); // Pakai Helper Baru
             const cat = log['Kategori'] || '';
 
             tbody.innerHTML += `
@@ -173,7 +187,7 @@ function renderHome() {
                         <div class="font-medium text-sm truncate max-w-[150px]">${act}</div>
                         <div class="text-[10px] text-gray-400">${cat}</div>
                     </td>
-                    <td class="px-4 py-3 text-right font-mono text-xs">${dur} m</td>
+                    <td class="px-4 py-3 text-right font-mono text-xs">${durFormatted}</td>
                 </tr>`;
         });
     }
@@ -413,49 +427,104 @@ window.submitCompletion = async () => {
     loadData();
 };
 
-// 1. Perbaiki Tampilan Riwayat Lengkap (Modal)
 window.openHistoryModal = () => {
-    const tbody = document.getElementById('full-history-body');
-    if(!tbody) return;
+    const container = document.getElementById('full-history-body'); // Ini sekarang kita ganti jadi Div container, bukan Tbody
+    if(!container) return;
     
-    tbody.innerHTML = '';
+    // KITA BUTUH UBAH STRUKTUR HTML DI INDEX HTML SEDIKIT
+    // Tapi untuk script ini, kita akan inject HTML accordion ke dalam container tersebut.
     
-    // Sort log terbaru di atas
+    container.innerHTML = ''; // Reset
+    
+    // 1. Sort Data (Terbaru di atas)
     const logs = appData.logs.slice().sort((a,b) => new Date(b.Tanggal) - new Date(a.Tanggal));
     
     if (logs.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-gray-400">Belum ada riwayat.</td></tr>';
+        container.innerHTML = '<div class="p-10 text-center text-gray-400">Belum ada riwayat pengerjaan.</div>';
         document.getElementById('modal-history').classList.remove('hidden');
         return;
     }
 
-    logs.forEach(log => {
-        // PEMBACAAN DATA YANG LEBIH AMAN
-        // Menggunakan bracket notation ['Nama Kolom'] sesuai header di Sheet
-        const date = log['Tanggal'] || log.Date || '-';
-        const act = log['Aktivitas'] || log.Task || '-';
-        const cat = log['Kategori'] || '-';
-        
-        // Format Waktu: Jam Mulai - Jam Selesai
-        const start = log['Jam Mulai'] || '-';
-        const end = log['Jam Selesai'] || '-';
-        const timeRange = (start !== '-' && end !== '-') ? `${start} - ${end}` : '-';
-        
-        // Format Durasi
-        const dur = log['Durasi (Menit)'] || 0;
-
-        tbody.innerHTML += `
-            <tr class="hover:bg-gray-50 dark:hover:bg-[#2C2C2C] transition">
-                <td class="p-3 text-gray-500 text-xs align-top whitespace-nowrap">${date}</td>
-                <td class="p-3 align-top">
-                    <div class="font-medium text-sm text-gray-800 dark:text-gray-200">${act}</div>
-                    <div class="text-[10px] bg-gray-100 dark:bg-gray-700 text-gray-500 px-1.5 py-0.5 rounded w-max mt-1">${cat}</div>
-                </td>
-                <td class="p-3 font-mono text-xs text-gray-500 align-top whitespace-nowrap">${timeRange}</td>
-                <td class="p-3 text-right font-bold text-sm align-top">${dur} m</td>
-            </tr>`;
-    });
+    // 2. Grouping Logic (Bulan & Pekan)
+    const groups = {};
     
+    logs.forEach(log => {
+        const dateStr = log['Tanggal'];
+        if(!dateStr) return;
+
+        const dateParts = dateStr.split('-'); // YYYY-MM-DD
+        const dateObj = new Date(dateParts[0], dateParts[1]-1, dateParts[2]);
+        
+        // Nama Bulan & Tahun (e.g. Februari 2026)
+        const monthYear = dateObj.toLocaleString('id-ID', { month: 'long', year: 'numeric' });
+        
+        // Hitung Pekan ke-berapa (Simple calculation: Tanggal bagi 7)
+        const weekNum = Math.ceil(dateObj.getDate() / 7);
+        
+        const groupKey = `${monthYear} - Pekan ${weekNum}`;
+        
+        if(!groups[groupKey]) groups[groupKey] = [];
+        groups[groupKey].push(log);
+    });
+
+    // 3. Render Accordion
+    Object.keys(groups).forEach((key, index) => {
+        const items = groups[key];
+        const isOpen = index === 0 ? 'open' : ''; // Hanya pekan terbaru yang terbuka otomatis
+        
+        // Hitung total jam pekan ini (Opsional, untuk info di header accordion)
+        let weekMinutes = 0;
+        items.forEach(i => weekMinutes += parseInt(i['Durasi (Menit)']||0));
+        const weekDuration = formatDuration(weekMinutes);
+
+        // Generate Rows HTML
+        let rowsHtml = '';
+        items.forEach(log => {
+            const start = log['Jam Mulai'] || '-';
+            const end = log['Jam Selesai'] || '-';
+            const timeRange = (start !== '-' && end !== '-') ? `${start} - ${end}` : '-';
+            const dur = formatDuration(log['Durasi (Menit)'] || 0);
+
+            rowsHtml += `
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3 border-b border-gray-100 dark:border-gray-800 last:border-0 hover:bg-gray-50 dark:hover:bg-[#2C2C2C] transition">
+                    <div class="flex-1 mb-2 sm:mb-0">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="text-xs font-mono bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded text-gray-500">${log['Tanggal']}</span>
+                            <span class="text-[10px] uppercase tracking-wider font-bold text-blue-500">${log['Kategori']}</span>
+                        </div>
+                        <div class="font-medium text-sm text-gray-800 dark:text-gray-200">${log['Aktivitas']}</div>
+                    </div>
+                    <div class="text-right flex items-center justify-end gap-4 text-xs">
+                        <div class="font-mono text-gray-400">${timeRange}</div>
+                        <div class="font-bold min-w-[60px] text-right bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 px-2 py-1 rounded">${dur}</div>
+                    </div>
+                </div>
+            `;
+        });
+
+        // Accordion HTML
+        const accordionHtml = `
+            <div class="mb-4 border border-notion-border dark:border-notion-darkBorder rounded-lg overflow-hidden bg-white dark:bg-[#202020]">
+                <details ${isOpen} class="group">
+                    <summary class="flex items-center justify-between p-4 cursor-pointer bg-gray-50 dark:bg-[#252525] hover:bg-gray-100 dark:hover:bg-[#2A2A2A] transition list-none">
+                        <div class="flex items-center gap-2 font-bold text-gray-700 dark:text-gray-300">
+                            <span class="transform group-open:rotate-90 transition-transform">▶</span>
+                            ${key}
+                        </div>
+                        <div class="text-xs font-mono text-gray-500 bg-white dark:bg-black px-2 py-1 rounded border border-gray-200 dark:border-gray-700">
+                            Total: ${weekDuration}
+                        </div>
+                    </summary>
+                    <div class="divide-y divide-gray-100 dark:divide-gray-800">
+                        ${rowsHtml}
+                    </div>
+                </details>
+            </div>
+        `;
+        
+        container.insertAdjacentHTML('beforeend', accordionHtml);
+    });
+
     document.getElementById('modal-history').classList.remove('hidden');
 };
 
