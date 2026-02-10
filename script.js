@@ -268,30 +268,18 @@ function renderHome() {
 }
 
 function renderRoadmap() {
-    const container = document.getElementById('roadmap-container');
+const container = document.getElementById('roadmap-container');
     container.innerHTML = '';
-    if(!appData.roadmap.length) { container.innerHTML = '<div class="text-center py-10 text-gray-400">Roadmap Kosong.</div>'; return; }
-
     const grouped = {};
-    appData.roadmap.forEach(item => {
-        const bab = item.Bab || 'Lainnya';
-        if(!grouped[bab]) grouped[bab] = [];
-        grouped[bab].push(item);
-    });
+    appData.roadmap.forEach(i => { if(!grouped[i.Bab]) grouped[i.Bab] = []; grouped[i.Bab].push(i); });
 
     Object.keys(grouped).forEach(bab => {
-        const items = grouped[bab];
-        const isDone = items.every(i => i.Status === 'done');
-        
         let subHtml = '';
-        items.forEach(sub => {
-            const subName = sub['Sub-Bab'] || 'Item';
+        grouped[bab].forEach(sub => {
             const status = (sub.Status || "to-do").toLowerCase();
-            const link = sub['Link File'];
-            
-            // Button
             const btnColor = status === 'done' ? 'bg-green-500 text-white' : (status === 'doing' ? 'bg-yellow-400 text-black' : 'bg-red-100 text-red-500');
             const icon = status === 'done' ? '✓' : (status === 'doing' ? '⏳' : '○');
+            const link = sub['Link File'];;
             
             // Interactive Link
             const linkColor = link ? 'text-blue-500' : 'text-gray-300';
@@ -300,31 +288,30 @@ function renderRoadmap() {
             subHtml += `
                 <div class="flex items-center justify-between py-3 border-b border-gray-100 dark:border-gray-800 last:border-0">
                     <div class="flex items-center gap-3">
-                        <button onclick="toggleRoadmapStatus('${bab}', '${subName}', '${status}')" class="w-6 h-6 rounded-md flex items-center justify-center text-xs font-bold ${btnColor}">
+                        <button onclick="toggleRoadmapStatus('${bab}', '${sub['Sub-Bab']}', '${status}')" class="w-6 h-6 rounded-md flex items-center justify-center text-xs font-bold ${btnColor}">
                             ${icon}
                         </button>
-                        <span class="text-sm">${subName}</span>
+                        <span class="text-sm">${sub['Sub-Bab']}</span>
                     </div>
-                    <button onclick="openLinkModal('${bab}', '${subName}')" class="text-xs '${linkColor}' italic">${linkLabel}</button>
+                    <button onclick="openLinkModal('${bab}', '${sub['Sub-Bab']}')" class="text-xs '${linkColor}' italic">${linkLabel}</button>
                 </div>`;
         });
 
-        // container.innerHTML += `
-        //     <div class="bg-white dark:bg-[#202020] border border-notion-border dark:border-notion-darkBorder rounded-lg overflow-hidden">
-        //         <details open class="group">
-        //             <summary class="flex justify-between items-center p-4 bg-gray-50 dark:bg-[#252525] cursor-pointer list-none">
-        //                 <h3 class="font-bold text-md">📂 ${bab}</h3>
-        //                 <span class="text-xs px-2 py-1 rounded ${isDone ? 'bg-green-100 text-green-700':'bg-yellow-100 text-yellow-700'}">${isDone?'Selesai':'Proses'}</span>
-        //             </summary>
-        //             <div class="px-4 pb-2">${subHtml}</div>
-        //         </details>
-        //     </div>`;
-
         container.innerHTML += `
-        <div class="bg-white dark:bg-[#202020] border rounded-lg p-4 mb-4">
-            <h3 class="font-bold mb-2">📂 ${bab}</h3>
-            <div>${subHtml}</div>
-        </div>`;
+            <div class="bg-white dark:bg-[#202020] border border-notion-border dark:border-notion-darkBorder rounded-lg overflow-hidden">
+                <details open class="group">
+                    <summary class="flex justify-between items-center p-4 bg-gray-50 dark:bg-[#252525] cursor-pointer list-none">
+                        <h3 class="font-bold text-md">📂 ${bab}</h3>
+                    </summary>
+                    <div class="px-4 pb-2">${subHtml}</div>
+                </details>
+            </div>`;
+
+        // container.innerHTML += `
+        // <div class="bg-white dark:bg-[#202020] border rounded-lg p-4 mb-4">
+        //     <h3 class="font-bold mb-2">📂 ${bab}</h3>
+        //     <div>${subHtml}</div>
+        // </div>`;
     });
 }
 
@@ -643,9 +630,7 @@ window.toggleRoadmapStatus = async (bab, sub, currentStatus) => {
     renderRoadmap();
     renderHome();
 
-    await fetch(API_URL, {
-        method: 'POST',
-        body: JSON.stringify({ action: 'updateRoadmap', type: 'status', bab: bab, subBab: sub, value: nextStatus })
+    await fetch(API_URL, {method: 'POST', body: JSON.stringify({ action: 'updateRoadmap', type: 'status', bab: bab, subBab: sub, value: nextStatus })
     });
 };
 
