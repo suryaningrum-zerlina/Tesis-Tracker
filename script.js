@@ -512,11 +512,6 @@ function renderCalendar(month, year) {
     }
     
     if(!monthHasAgenda) agendaList.innerHTML = '<p class="text-center text-gray-400 text-sm py-4">Tidak ada agenda bulan ini.</p>';
-
-    // Tambahkan tombol + di tab Kalender
-    document.querySelector('#view-calendar h2').innerHTML += `
-        <button onclick="openModal('modal-add-event')" class="ml-4 bg-black dark:bg-white text-white dark:text-black w-8 h-8 rounded-full text-lg">+</button>
-    `;
 }
 
 function renderFiles() {
@@ -539,8 +534,10 @@ window.switchTab = function(tabId) {
     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
     
     // 2. Tampilkan tab yang dipilih
-    const target = document.getElementById('view-' + tabId);
-    if(target) target.classList.add('active');
+    // const target = document.getElementById('view-' + tabId);
+    // if(target) target.classList.add('active');
+    document.getElementById('view-' + tabId).classList.add('active');
+    
 
     // 3. Update Title Header Mobile
     const titles = {'home':'🏠 Home', 'roadmap':'🗺️ Roadmap', 'tasks':'✅ Tasks', 'calendar':'📅 Calendar', 'files':'📂 Files', 'settings':'⚙️ Settings'};
@@ -548,21 +545,19 @@ window.switchTab = function(tabId) {
 
     // 4. Update Highlight DESKTOP (nav-item)
     document.querySelectorAll('.nav-item').forEach(btn => {
+        btn.classList.remove('bg-gray-200', 'dark:bg-gray-800', 'text-black', 'dark:text-white');
         if(btn.dataset.target === tabId) {
             btn.classList.add('bg-gray-200', 'dark:bg-gray-800', 'text-black', 'dark:text-white');
-        } else {
-            btn.classList.remove('bg-gray-200', 'dark:bg-gray-800', 'text-black', 'dark:text-white');
         }
     });
 
     // 5. Update Highlight MOBILE (nav-btn-m)
     document.querySelectorAll('.nav-btn-m').forEach(btn => {
+        btn.classList.remove('text-black', 'dark:text-white');
+        btn.classList.add('text-gray-400');        
         if(btn.dataset.target === tabId) {
             btn.classList.add('text-black', 'dark:text-white');
             btn.classList.remove('text-gray-400');
-        } else {
-            btn.classList.remove('text-black', 'dark:text-white');
-            btn.classList.add('text-gray-400');
         }
     });
 };
