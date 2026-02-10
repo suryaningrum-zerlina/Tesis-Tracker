@@ -77,12 +77,39 @@ function formatDuration(minutes) {
 function renderHome() {
     // 1. Progress from Roadmap Checklist
     const items = appData.roadmap || [];
-    const done = items.filter(i => i.Status === 'Selesai' || i.Status === true).length;
-    const total = items.length || 1;
-    const pct = Math.round((done/total)*100);
+    const doneCount = items.filter(i => i.Status === 'done' || i.Status === 'Done').length;
+    const pct = Math.round((doneCount / (items.length || 1)) * 100);
     document.getElementById('progress-text').innerText = `${pct}%`;
     document.getElementById('progress-bar').style.width = `${pct}%`;
+    
+    //1.b. Roadmap Summary Chips
+    const summaryContainer = document.getElementById('home-roadmap-summary');
+    summaryContainer.innerHTML = '';
+    const groupedRoadmap = {};
+    items.forEach(i => {
+        if(!groupedRoadmap[i.Bab]) groupedRoadmap[i.Bab] = [];
+        groupedRoadmap[i.Bab].push(i.Status);
+    });
 
+    Object.keys(groupedRoadmap).forEach(bab => {
+        const statuses = groupedRoadmap[bab];
+        let overallStatus = "to-do";
+        if (statuses.every(s => s === 'done')) overallStatus = "done";
+        else if (statuses.some(s => s === 'doing' || s === 'done')) overallStatus = "doing";
+
+        const colors = {
+            "done": "bg-green-100 text-green-700 border-green-200",
+            "doing": "bg-yellow-100 text-yellow-700 border-yellow-200",
+            "to-do": "bg-red-50 text-red-600 border-red-100"
+        };
+
+        summaryContainer.innerHTML += `
+            <div class="px-2 py-1 rounded-full border text-[10px] font-bold ${colors[overallStatus]}">
+                ${bab}: ${overallStatus.toUpperCase()}
+            </div>
+        `;
+    });
+    
     // 2. Total Hours
     let totalMinutes = 0;
     appData.logs.forEach(l => {
@@ -161,6 +188,30 @@ function renderHome() {
         }
         container.appendChild(col);
     }
+
+// 3. NEW: Upcoming Events Widget
+    const eventList = document.getElementById('home-events-list');
+    const eventContainer = document.getElementById('home-events-container');
+    eventList.innerHTML = '';
+    
+    const today = new Date();
+    const upcoming = appData.events
+        .filter(e => new Date(e.Tanggal) >= today.setHours(0,0,0,0))
+        .sort((a,b) => new Date(a.Tanggal) - new Date(b.Tanggal))
+        .slice(0, 3);
+
+    if (upcoming.length > 0) {
+        eventContainer.classList.remove('hidden');
+        upcoming.forEach(e => {
+            eventList.innerHTML += `
+                <div class="flex items-center gap-3 p-3 bg-blue-50 dark:bg-blue-900/10 rounded-lg border border-blue-100 dark:border-blue-800">
+                    <div class="text-blue-600 font-bold text-xs uppercase">${new Date(e.Tanggal).toLocaleString('default', {month:'short'})}<br>${new Date(e.Tanggal).getDate()}</div>
+                    <div class="flex-1"><p class="text-sm font-bold">${e.Nama_Event}</p><p class="text-[10px] text-blue-400">${e.Jam || 'Full Day'}</p></div>
+                </div>
+            `;
+        });
+    }
+    
 // 3. PRIORITY TASKS WIDGET (NEW)
     const priorityList = document.getElementById('home-priority-list');
     const priorityContainer = document.getElementById('home-priority-container');
@@ -179,7 +230,7 @@ function renderHome() {
                         <p class="font-bold text-sm text-red-800 dark:text-red-300">${t.Task}</p>
                         <p class="text-xs text-red-600 dark:text-red-400">Deadline: ${countdown}</p>
                     </div>
-                    <button onclick="window.openCompleteModal('${t.ID}','${t.Task}','${t.Kategori}')" class="bg-white dark:bg-black text-xs px-2 py-1 rounded shadow text-gray-600">Done</button>
+                    <button onclick="window.openCompleteModal('${t.ID}','${t.Task}','${t.Kategori}','${t.Link||''}')" class="bg-white dark:bg-black text-xs px-2 py-1 rounded shadow text-gray-600">Done</button>
                 </div>
             `;
         });
@@ -230,94 +281,131 @@ function renderRoadmap() {
 
     Object.keys(grouped).forEach(bab => {
         const items = grouped[bab];
-        const isDone = items.every(i => i.Status === 'Selesai');
+        const isDone = items.every(i => i.Status === 'done');
         
         let subHtml = '';
         items.forEach(sub => {
             const subName = sub['Sub-Bab'] || 'Item';
-            const status = sub.Status;
+            const status = (sub.Status || "to-do").toLowerCase();
             const link = sub['Link File'];
             
-            // Interactive Checkbox
-            const checkIcon = status === 'Selesai' ? '✅' : '⬜';
-            const nextStatus = status === 'Selesai' ? 'Belum Mulai' : 'Selesai';
+            // Button
+            const btnColor = status === 'done' ? 'bg-green-500 text-white' : (status === 'doing' ? 'bg-yellow-400 text-black' : 'bg-red-100 text-red-500');
+            const icon = status === 'done' ? '✓' : (status === 'doing' ? '⏳' : '○');
             
             // Interactive Link
             const linkColor = link ? 'text-blue-500' : 'text-gray-300';
             const linkLabel = link ? 'Link ↗' : 'Add Link +';
 
             subHtml += `
-                <div class="flex justify-between items-center py-3 border-b border-gray-100 dark:border-gray-800 text-sm last:border-0">
-                    <div class="flex items-center gap-3 cursor-pointer hover:opacity-70 truncate pr-2" onclick="toggleRoadmapStatus('${bab}', '${subName}', '${nextStatus}')">
-                        <span class="text-lg">${checkIcon}</span>
-                        <span>${subName}</span>
+                <div class="flex items-center justify-between py-3 border-b border-gray-100 dark:border-gray-800 last:border-0">
+                    <div class="flex items-center gap-3">
+                        <button onclick="toggleRoadmapStatus('${bab}', '${subName}', '${status}')" class="w-6 h-6 rounded-md flex items-center justify-center text-xs font-bold ${btnColor}">
+                            ${icon}
+                        </button>
+                        <span class="text-sm">${subName}</span>
                     </div>
-                    <div class="flex items-center gap-2">
-                         ${link ? `<a href="${link}" target="_blank" class="p-1 rounded bg-blue-50 text-blue-600 text-xs">Buka</a>` : ''}
-                         <button onclick="openLinkModal('${bab}', '${subName}')" class="text-xs ${linkColor} hover:text-black">🔗</button>
-                    </div>
+                    <button onclick="openLinkModal('${bab}', '${subName}')" class="text-xs '${linkColor}' italic">${linkLabel}</button>
                 </div>`;
         });
 
+        // container.innerHTML += `
+        //     <div class="bg-white dark:bg-[#202020] border border-notion-border dark:border-notion-darkBorder rounded-lg overflow-hidden">
+        //         <details open class="group">
+        //             <summary class="flex justify-between items-center p-4 bg-gray-50 dark:bg-[#252525] cursor-pointer list-none">
+        //                 <h3 class="font-bold text-md">📂 ${bab}</h3>
+        //                 <span class="text-xs px-2 py-1 rounded ${isDone ? 'bg-green-100 text-green-700':'bg-yellow-100 text-yellow-700'}">${isDone?'Selesai':'Proses'}</span>
+        //             </summary>
+        //             <div class="px-4 pb-2">${subHtml}</div>
+        //         </details>
+        //     </div>`;
+
         container.innerHTML += `
-            <div class="bg-white dark:bg-[#202020] border border-notion-border dark:border-notion-darkBorder rounded-lg overflow-hidden">
-                <details open class="group">
-                    <summary class="flex justify-between items-center p-4 bg-gray-50 dark:bg-[#252525] cursor-pointer list-none">
-                        <h3 class="font-bold text-md">📂 ${bab}</h3>
-                        <span class="text-xs px-2 py-1 rounded ${isDone ? 'bg-green-100 text-green-700':'bg-yellow-100 text-yellow-700'}">${isDone?'Selesai':'Proses'}</span>
-                    </summary>
-                    <div class="px-4 pb-2">${subHtml}</div>
-                </details>
-            </div>`;
+        <div class="bg-white dark:bg-[#202020] border rounded-lg p-4 mb-4">
+            <h3 class="font-bold mb-2">📂 ${bab}</h3>
+            <div>${subHtml}</div>
+        </div>`;
     });
 }
+
+// RENDER TASK OLD
+// function renderTasks() {
+//     const list = document.getElementById('task-list-container');
+//     list.innerHTML = '';
+    
+//     let tasks = appData.tasks.filter(t => t.Status !== 'Done');
+    
+//     // Sort: High Priority first, then Deadline Ascending
+//     tasks.sort((a, b) => {
+//         if (a.Priority === 'High' && b.Priority !== 'High') return -1;
+//         if (a.Priority !== 'High' && b.Priority === 'High') return 1;
+//         return new Date(a.Deadline + 'T' + (a['Jam Deadline']||'00:00')) - new Date(b.Deadline + 'T' + (b['Jam Deadline']||'00:00'));
+//     });
+
+//     if(tasks.length === 0) { list.innerHTML = '<p class="text-center text-gray-400 py-10">Tidak ada tugas aktif.</p>'; return; }
+
+//     tasks.forEach(task => {
+//         const time = task['Jam Deadline'] || '23:59';
+//         const countdown = getCountdown(task.Deadline, time);
+//         const isHigh = task.Priority === 'High';
+        
+//         const borderClass = isHigh ? 'border-l-4 border-l-red-500' : 'border-l-4 border-l-gray-300 dark:border-l-gray-600';
+//         const bgClass = isHigh ? 'bg-red-50/50 dark:bg-red-900/10' : 'bg-white dark:bg-[#202020]';
+        
+//         let linkBtn = '';
+//         if(task.Link) linkBtn = `<a href="${task.Link}" target="_blank" class="text-blue-500 text-xs">Link ↗</a>`;
+
+//         list.innerHTML += `
+//             <div class="${bgClass} border border-notion-border dark:border-notion-darkBorder rounded-lg p-3 shadow-sm ${borderClass} relative group">
+//                 <div class="flex items-start gap-3">
+//                     <input type="checkbox" class="w-5 h-5 mt-1 cursor-pointer accent-black" 
+//                            onclick="window.openCompleteModal('${task.ID}','${task.Task}','${task.Kategori}', '${task.Link||''}')">
+//                     <div class="flex-1">
+//                         <div class="flex justify-between">
+//                             <h4 class="font-bold text-sm ${isHigh ? 'text-red-700 dark:text-red-400':''}">${task.Task}</h4>
+//                             <button onclick="deleteTask('${task.ID}')" class="text-gray-300 hover:text-red-500 text-xs">×</button>
+//                         </div>
+//                         <div class="flex flex-wrap items-center gap-2 mt-1">
+//                             <span class="text-[10px] bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded flex items-center gap-1">
+//                                 ⏳ ${countdown}
+//                             </span>
+//                             <span class="text-[10px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded">${task.Kategori}</span>
+//                             ${linkBtn}
+//                         </div>
+//                     </div>
+//                 </div>
+//             </div>`;
+//     });
+// }
 
 function renderTasks() {
     const list = document.getElementById('task-list-container');
     list.innerHTML = '';
     
-    let tasks = appData.tasks.filter(t => t.Status !== 'Done');
-    
-    // Sort: High Priority first, then Deadline Ascending
-    tasks.sort((a, b) => {
-        if (a.Priority === 'High' && b.Priority !== 'High') return -1;
-        if (a.Priority !== 'High' && b.Priority === 'High') return 1;
-        return new Date(a.Deadline + 'T' + (a['Jam Deadline']||'00:00')) - new Date(b.Deadline + 'T' + (b['Jam Deadline']||'00:00'));
-    });
+    // Sort logic (Priority High first)
+    const sorted = appData.tasks.filter(t => t.Status !== 'Done').sort((a,b) => (a.Priority === 'High' ? -1 : 1));
 
-    if(tasks.length === 0) { list.innerHTML = '<p class="text-center text-gray-400 py-10">Tidak ada tugas aktif.</p>'; return; }
-
-    tasks.forEach(task => {
-        const time = task['Jam Deadline'] || '23:59';
-        const countdown = getCountdown(task.Deadline, time);
-        const isHigh = task.Priority === 'High';
+    sorted.forEach(t => {
+        const countdown = getCountdown(t.Deadline, t['Jam Deadline']);
+        const prioClass = t.Priority === 'High' ? 'border-red-500 bg-red-50/30' : 'border-notion-border bg-white dark:bg-[#202020]';
         
-        const borderClass = isHigh ? 'border-l-4 border-l-red-500' : 'border-l-4 border-l-gray-300 dark:border-l-gray-600';
-        const bgClass = isHigh ? 'bg-red-50/50 dark:bg-red-900/10' : 'bg-white dark:bg-[#202020]';
-        
-        let linkBtn = '';
-        if(task.Link) linkBtn = `<a href="${task.Link}" target="_blank" class="text-blue-500 text-xs">Link ↗</a>`;
-
         list.innerHTML += `
-            <div class="${bgClass} border border-notion-border dark:border-notion-darkBorder rounded-lg p-3 shadow-sm ${borderClass} relative group">
-                <div class="flex items-start gap-3">
-                    <input type="checkbox" class="w-5 h-5 mt-1 cursor-pointer accent-black" 
-                           onclick="window.openCompleteModal('${task.ID}','${task.Task}','${task.Kategori}', '${task.Link||''}')">
-                    <div class="flex-1">
-                        <div class="flex justify-between">
-                            <h4 class="font-bold text-sm ${isHigh ? 'text-red-700 dark:text-red-400':''}">${task.Task}</h4>
-                            <button onclick="deleteTask('${task.ID}')" class="text-gray-300 hover:text-red-500 text-xs">×</button>
-                        </div>
-                        <div class="flex flex-wrap items-center gap-2 mt-1">
-                            <span class="text-[10px] bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 rounded flex items-center gap-1">
-                                ⏳ ${countdown}
-                            </span>
-                            <span class="text-[10px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded">${task.Kategori}</span>
-                            ${linkBtn}
-                        </div>
+            <div class="p-4 border rounded-xl shadow-sm ${prioClass} relative group transition">
+                <div class="flex justify-between items-start mb-1">
+                    <h4 class="font-bold text-sm">${t.Task}</h4>
+                    <div class="flex gap-2">
+                        <button onclick="editTask('${t.ID}')" class="text-gray-400 hover:text-blue-500 text-xs">Edit</button>
+                        <button onclick="deleteTask('${t.ID}')" class="text-gray-400 hover:text-red-500 text-xs">Hapus</button>
                     </div>
                 </div>
-            </div>`;
+                <div class="flex flex-wrap gap-2 items-center text-[10px]">
+                    <span class="font-medium text-gray-500">📅 ${t.Deadline}</span>
+                    <span class="bg-black/5 dark:bg-white/5 px-2 py-0.5 rounded text-orange-600 font-bold italic">⌛ ${countdown}</span>
+                    <span class="bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full">${t.Kategori}</span>
+                </div>
+                <input type="checkbox" class="absolute top-4 right-[-40px] group-hover:right-4 transition-all w-6 h-6 rounded cursor-pointer" onclick="openCompleteModal('${t.ID}','${t.Task}','${t.Kategori}')">
+            </div>
+        `;
     });
 }
 
@@ -408,6 +496,11 @@ function renderCalendar(month, year) {
     }
     
     if(!monthHasAgenda) agendaList.innerHTML = '<p class="text-center text-gray-400 text-sm py-4">Tidak ada agenda bulan ini.</p>';
+
+    // Tambahkan tombol + di tab Kalender
+    document.querySelector('#view-calendar h2').innerHTML += `
+        <button onclick="openModal('modal-add-event')" class="ml-4 bg-black dark:bg-white text-white dark:text-black w-8 h-8 rounded-full text-lg">+</button>
+    `;
 }
 
 function renderFiles() {
@@ -430,6 +523,20 @@ window.changeMonth = (dir) => {
     if(calendarState.month>11){calendarState.month=0; calendarState.year++}
     if(calendarState.month<0){calendarState.month=11; calendarState.year--}
     renderCalendar(calendarState.month, calendarState.year);
+};
+
+window.submitAddEvent = async () => {
+    const payload = {
+        action: 'addEvent',
+        nama: document.getElementById('event-name').value,
+        tanggal: document.getElementById('event-date').value,
+        jam: document.getElementById('event-time').value
+    };
+    if(!payload.nama || !payload.tanggal) return;
+    
+    closeModal('modal-add-event');
+    await fetch(API_URL, { method:'POST', body: JSON.stringify(payload) });
+    loadData();
 };
 
 window.addTask = async () => {
@@ -526,17 +633,20 @@ window.deleteTask = async (id) => {
     loadData();
 };
 
-window.toggleRoadmapStatus = async (bab, sub, val) => {
-    // Optimistic Update
-    const item = appData.roadmap.find(r => r.Bab == bab && (r['Sub-Bab'] == sub || r.Item == sub));
-    if(item) item.Status = val;
-    renderRoadmap();
-    renderHome(); // Update progress
+window.toggleRoadmapStatus = async (bab, sub, currentStatus) => {
+    const statusCycle = { "to-do": "doing", "doing": "done", "done": "to-do" };
+    const nextStatus = statusCycle[currentStatus.toLowerCase()] || "to-do";
     
-    await fetch(API_URL, {method:'POST', body:JSON.stringify({
-        action:'updateRoadmap', type:'status', bab:bab, subBab:sub, value:val
-    })});
-    loadData(); // Re-sync
+    // Update Local UI Fast
+    const item = appData.roadmap.find(r => r.Bab == bab && r['Sub-Bab'] == sub);
+    if(item) item.Status = nextStatus;
+    renderRoadmap();
+    renderHome();
+
+    await fetch(API_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'updateRoadmap', type: 'status', bab: bab, subBab: sub, value: nextStatus })
+    });
 };
 
 window.openLinkModal = (bab, sub) => {
