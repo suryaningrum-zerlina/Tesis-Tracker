@@ -194,7 +194,7 @@ function renderHome() {
     const eventContainer = document.getElementById('home-events-container');
     eventList.innerHTML = '';
     
-    const today = new Date();
+    // const today = new Date();
     const upcoming = appData.events
         .filter(e => new Date(e.Tanggal) >= today.setHours(0,0,0,0))
         .sort((a,b) => new Date(a.Tanggal) - new Date(b.Tanggal))
