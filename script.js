@@ -85,27 +85,56 @@ function renderHome() {
     //1.b. Roadmap Summary Chips
     const summaryContainer = document.getElementById('home-roadmap-summary');
     summaryContainer.innerHTML = '';
-    const groupedRoadmap = {};
-    items.forEach(i => {
-        if(!groupedRoadmap[i.Bab]) groupedRoadmap[i.Bab] = [];
-        groupedRoadmap[i.Bab].push(i.Status);
+    
+    //roadmap status (OLD)
+    // const groupedRoadmap = {};
+    // items.forEach(i => {
+    //     if(!groupedRoadmap[i.Bab]) groupedRoadmap[i.Bab] = [];
+    //     groupedRoadmap[i.Bab].push(i.Status);
+    // });
+
+    // Object.keys(groupedRoadmap).forEach(bab => {
+    //     const statuses = groupedRoadmap[bab];
+    //     let overallStatus = "to-do";
+    //     if (statuses.every(s => s === 'done')) overallStatus = "done";
+    //     else if (statuses.some(s => s === 'doing' || s === 'done')) overallStatus = "doing";
+
+    //     const colors = {
+    //         "done": "bg-green-100 text-green-700 border-green-200",
+    //         "doing": "bg-yellow-100 text-yellow-700 border-yellow-200",
+    //         "to-do": "bg-red-50 text-red-600 border-red-100"
+    //     };
+
+    //     summaryContainer.innerHTML += `
+    //         <div class="px-2 py-1 rounded-full border text-[10px] font-bold ${colors[overallStatus]}">
+    //             ${bab}: ${overallStatus.toUpperCase()}
+    //         </div>
+    //     `;
+    // });
+    
+   //roadmap status (NEW)
+    const babStatus = {}; 
+    appData.roadmap.forEach(i => {
+        if(!babStatus[i.Bab]) babStatus[i.Bab] = [];
+        babStatus[i.Bab].push(i.Status.toLowerCase());
     });
 
-    Object.keys(groupedRoadmap).forEach(bab => {
-        const statuses = groupedRoadmap[bab];
-        let overallStatus = "to-do";
-        if (statuses.every(s => s === 'done')) overallStatus = "done";
-        else if (statuses.some(s => s === 'doing' || s === 'done')) overallStatus = "doing";
+    Object.keys(babStatus).forEach(bab => {
+        const statuses = babStatus[bab];
+        let colorClass = "bg-red-50 text-red-600 border-red-100";
+        let label = "TO-DO";
 
-        const colors = {
-            "done": "bg-green-100 text-green-700 border-green-200",
-            "doing": "bg-yellow-100 text-yellow-700 border-yellow-200",
-            "to-do": "bg-red-50 text-red-600 border-red-100"
-        };
+        if (statuses.every(s => s === 'done')) {
+            colorClass = "bg-green-100 text-green-700 border-green-200";
+            label = "DONE";
+        } else if (statuses.some(s => s === 'doing' || s === 'done')) {
+            colorClass = "bg-yellow-100 text-yellow-700 border-yellow-200";
+            label = "DOING";
+        }
 
         summaryContainer.innerHTML += `
-            <div class="px-2 py-1 rounded-full border text-[10px] font-bold ${colors[overallStatus]}">
-                ${bab}: ${overallStatus.toUpperCase()}
+            <div class="px-2 py-1 rounded-md border text-[9px] font-bold ${colorClass}">
+                ${bab}: ${label}
             </div>
         `;
     });
@@ -505,6 +534,39 @@ function renderFiles() {
 
 /* ACTIONS */
 
+window.switchTab = function(tabId) {
+    // 1. Sembunyikan semua tab-content
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    
+    // 2. Tampilkan tab yang dipilih
+    const target = document.getElementById('view-' + tabId);
+    if(target) target.classList.add('active');
+
+    // 3. Update Title Header Mobile
+    const titles = {'home':'🏠 Home', 'roadmap':'🗺️ Roadmap', 'tasks':'✅ Tasks', 'calendar':'📅 Calendar', 'files':'📂 Files', 'settings':'⚙️ Settings'};
+    document.getElementById('page-title').innerText = titles[tabId];
+
+    // 4. Update Highlight DESKTOP (nav-item)
+    document.querySelectorAll('.nav-item').forEach(btn => {
+        if(btn.dataset.target === tabId) {
+            btn.classList.add('bg-gray-200', 'dark:bg-gray-800', 'text-black', 'dark:text-white');
+        } else {
+            btn.classList.remove('bg-gray-200', 'dark:bg-gray-800', 'text-black', 'dark:text-white');
+        }
+    });
+
+    // 5. Update Highlight MOBILE (nav-btn-m)
+    document.querySelectorAll('.nav-btn-m').forEach(btn => {
+        if(btn.dataset.target === tabId) {
+            btn.classList.add('text-black', 'dark:text-white');
+            btn.classList.remove('text-gray-400');
+        } else {
+            btn.classList.remove('text-black', 'dark:text-white');
+            btn.classList.add('text-gray-400');
+        }
+    });
+};
+
 window.changeMonth = (dir) => {
     calendarState.month += dir;
     if(calendarState.month>11){calendarState.month=0; calendarState.year++}
@@ -523,6 +585,26 @@ window.submitAddEvent = async () => {
     
     closeModal('modal-add-event');
     await fetch(API_URL, { method:'POST', body: JSON.stringify(payload) });
+    loadData();
+};
+
+window.toggleFullDay = (isFullDay) => {
+    const container = document.getElementById('end-time-container');
+    const timeInput = document.getElementById('event-time');
+    if(isFullDay) {
+        container.classList.add('opacity-30', 'pointer-events-none');
+        timeInput.value = "";
+        timeInput.disabled = true;
+    } else {
+        container.classList.remove('opacity-30', 'pointer-events-none');
+        timeInput.disabled = false;
+    }
+};
+
+window.deleteEvent = async (id) => {
+    if(!confirm("Hapus agenda ini?")) return;
+    document.getElementById('modal-day-detail').classList.add('hidden');
+    await fetch(API_URL, {method:'POST', body:JSON.stringify({action:'deleteEvent', eventId:id})});
     loadData();
 };
 
