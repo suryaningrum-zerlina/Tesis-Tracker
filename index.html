@@ -68,10 +68,17 @@
                     <div class="mb-6"><p class="text-gray-500 text-sm">Halo, <span id="home-name">Mahasiswa</span> 👋</p><h2 class="text-2xl font-bold">Progress Tesis</h2><p id="home-title" class="text-sm text-gray-400 mt-1 italic">...</p></div>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                        <div class="md:col-span-2 bg-notion-sidebar dark:bg-notion-darkSidebar rounded-xl p-5 border border-notion-border dark:border-notion-darkBorder">
-                            <div class="flex justify-between items-end mb-3"><div><h2 class="text-lg font-bold">Completion</h2><p class="text-xs text-gray-500">Roadmap</p></div><span id="progress-text" class="text-3xl font-bold font-mono">0%</span></div>
-                            <div class="w-full bg-gray-200 rounded-full h-3 dark:bg-gray-700 overflow-hidden"><div id="progress-bar" class="bg-black dark:bg-white h-3 rounded-full transition-all duration-1000" style="width: 0%"></div></div>
-                        </div>
+                            <div class="md:col-span-2 bg-notion-sidebar dark:bg-notion-darkSidebar rounded-xl p-5 border border-notion-border dark:border-notion-darkBorder">
+                                <div class="flex justify-between items-end mb-3">
+                                    <div><h2 class="text-lg font-bold">Completion</h2></div>
+                                    <span id="progress-text" class="text-3xl font-bold font-mono">0%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-3 dark:bg-gray-700 overflow-hidden mb-4">
+                                    <div id="progress-bar" class="bg-black dark:bg-white h-3 rounded-full transition-all duration-1000" style="width: 0%"></div>
+                                </div>
+                                <div id="home-roadmap-summary" class="flex flex-wrap gap-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+                                    </div>
+                            </div>
                         <div class="bg-white dark:bg-[#202020] border border-notion-border dark:border-notion-darkBorder rounded-xl p-5 flex flex-col justify-center">
                             <h3 class="text-sm text-gray-500 mb-1">Total Jam Fokus</h3><p id="total-hours" class="text-3xl font-bold">0 <span class="text-sm font-normal text-gray-400">jam</span></p>
                         </div>
@@ -117,7 +124,35 @@
                     </div>
                 </div>
 
-                <div id="view-calendar" class="tab-content"><h2 class="text-2xl font-bold mb-4 hidden md:block">Kalender</h2><div class="bg-white dark:bg-[#202020] border border-notion-border dark:border-notion-darkBorder rounded-xl p-4 shadow-sm"><div class="flex justify-between items-center mb-6"><button onclick="window.changeMonth(-1)" class="p-2">◀</button><h3 class="font-bold text-lg" id="cal-month-name">...</h3><button onclick="window.changeMonth(1)" class="p-2">▶</button></div><div class="grid grid-cols-7 gap-1 text-center mb-2 text-[10px] font-bold text-gray-400"><div>Min</div><div>Sen</div><div>Sel</div><div>Rab</div><div>Kam</div><div>Jum</div><div>Sab</div></div><div id="calendar-grid" class="grid grid-cols-7 gap-1 md:gap-2 text-center text-sm mb-6"></div><div class="pt-4 border-t border-notion-border dark:border-notion-darkBorder mt-4"><h4 class="text-sm font-semibold mb-3 text-gray-500">Agenda Bulan Ini</h4><div id="calendar-agenda-list" class="space-y-3"></div></div></div></div>
+                <div id="view-calendar" class="tab-content">
+                    <h2 class="text-2xl font-bold mb-4 hidden md:block">Kalender</h2>
+                    <div class="bg-white dark:bg-[#202020] border border-notion-border dark:border-notion-darkBorder rounded-xl p-4 shadow-sm">
+                        <div class="flex justify-between items-center mb-6">
+                            <button onclick="window.changeMonth(-1)" class="p-2">◀</button>
+                            <h3 class="font-bold text-lg" id="cal-month-name">...</h3>
+                            <button onclick="window.changeMonth(1)" class="p-2">▶</button>
+                        </div>
+                        <div class="grid grid-cols-7 gap-1 text-center mb-2 text-[10px] font-bold text-gray-400">
+                            <div>Min</div>
+                            <div>Sen</div>
+                            <div>Sel</div>
+                            <div>Rab</div>
+                            <div>Kam</div>
+                            <div>Jum</div>
+                            <div>Sab</div>
+                        </div>
+                        <div id="calendar-grid" class="grid grid-cols-7 gap-1 md:gap-2 text-center text-sm mb-6"></div>
+                        <div class="pt-4 border-t border-notion-border dark:border-notion-darkBorder mt-4">
+                            <h4 class="text-sm font-semibold mb-3 text-gray-500">Agenda Bulan Ini</h4>
+                            <div id="calendar-agenda-list" class="space-y-3"></div>
+                        </div>
+                    </div>
+                    <div class="fixed bottom-20 right-4 md:absolute md:bottom-4 md:right-4 z-30">
+                        <button onclick="openModal('modal-add-event')" class="bg-blue-600 text-white w-14 h-14 rounded-full shadow-xl flex items-center justify-center text-2xl hover:bg-blue-700 transition">
+                            +
+                        </button>
+                    </div>
+                </div>
 
                 <div id="view-files" class="tab-content"><h2 class="text-2xl font-bold mb-6 hidden md:block">Drive Files</h2><div class="mb-6 p-8 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl text-center hover:bg-gray-50 dark:hover:bg-gray-800 relative cursor-pointer"><input type="file" onchange="window.handleFileUpload(this.files)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"><p class="text-3xl mb-2">📤</p><p class="text-sm">Upload File</p></div><div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="files-grid"></div></div>
 
@@ -133,28 +168,25 @@
             <button onclick="switchTab('files')" class="nav-btn p-2 flex flex-col items-center gap-1" data-target="files"><span>📂</span> File</button>
         </nav> -->
         
-        <nav class="md:hidden fixed bottom-0 w-full bg-white dark:bg-[#202020] border-t border-notion-border dark:border-notion-darkBorder pb-safe pt-2 px-2 flex justify-between items-center z-50 text-[10px] text-gray-400">
-            <button onclick="switchTab('home')" class="nav-btn flex-1 flex flex-col items-center gap-1 text-black dark:text-white" data-target="home">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        <nav id="mobile-nav" class="md:hidden fixed bottom-0 w-full bg-white dark:bg-[#202020] border-t border-notion-border pb-safe pt-2 px-2 flex justify-around items-center z-50 text-[10px] text-gray-400">
+            <button onclick="switchTab('home')" class="nav-btn-m flex flex-col items-center gap-1" data-target="home">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
                 <span>Home</span>
             </button>
-            <button onclick="switchTab('roadmap')" class="nav-btn flex-1 flex flex-col items-center gap-1" data-target="roadmap">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A2 2 0 013 15.485V5.111a2 2 0 011.553-1.954l5.447-1.362a2 2 0 011.232 0l5.447 1.362A2 2 0 0118 5.111v10.374a2 2 0 01-1.053 1.764L11.5 20a2 2 0 01-2.5 0z"/></svg>
+            <button onclick="switchTab('roadmap')" class="nav-btn-m flex flex-col items-center gap-1" data-target="roadmap">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 20l-5.447-2.724A2 2 0 013 15.485V5.111a2 2 0 011.553-1.954l5.447-1.362a2 2 0 011.232 0l5.447 1.362A2 2 0 0118 5.111v10.374a2 2 0 01-1.053 1.764L11.5 20a2 2 0 01-2.5 0z"/></svg>
                 <span>Roadmap</span>
             </button>
-            <button onclick="switchTab('tasks')" class="nav-btn flex-1 flex flex-col items-center gap-1" data-target="tasks">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+            <button onclick="switchTab('tasks')" class="nav-btn-m flex flex-col items-center gap-1" data-target="tasks">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
                 <span>Tasks</span>
             </button>
-            <button onclick="switchTab('calendar')" class="nav-btn flex-1 flex flex-col items-center gap-1" data-target="calendar">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            <button onclick="switchTab('calendar')" class="nav-btn-m flex flex-col items-center gap-1" data-target="calendar">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                 <span>Calendar</span>
             </button>
-            <button onclick="switchTab('files')" class="nav-btn flex-1 flex flex-col items-center gap-1" data-target="files">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1a2 2 0 002 0v-1a4 4 0 00-4-4H9l-2-2H5a4 4 0 00-4 4v10a4 4 0 004 4h9.382a4.975 4.975 0 00-.582-2H5z" />
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15 13l-3 3m0 0l-3-3m3 3V8m0 13a9 9 0 110-18 9 9 0 010 18z" />
-                </svg>
+            <button onclick="switchTab('files')" class="nav-btn-m flex flex-col items-center gap-1" data-target="files">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1a2 2 0 002 0v-1a4 4 0 00-4-4H9l-2-2H5a4 4 0 00-4 4v10a4 4 0 004 4h9.382a4.975 4.975 0 00-.582-2H5z"/></svg>
                 <span>Files</span>
             </button>
         </nav>
@@ -190,11 +222,24 @@
         <div class="bg-white dark:bg-[#202020] w-11/12 max-w-sm rounded-xl p-6 shadow-2xl">
             <h3 class="font-bold text-lg mb-4 text-notion-blueText">📅 Tambah Event Baru</h3>
             <div class="space-y-3">
-                <input type="text" id="event-name" placeholder="Nama Event (Misal: Sempro)" class="w-full p-2 border rounded bg-transparent text-sm">
-                <input type="date" id="event-date" class="w-full p-2 border rounded bg-transparent text-sm">
-                <input type="time" id="event-time" class="w-full p-2 border rounded bg-transparent text-sm">
+                <input type="text" id="event-name" placeholder="Nama Event" class="w-full p-2 border rounded bg-transparent">
+                <input type="date" id="event-date" class="w-full p-2 border rounded bg-transparent">
+                <div class="flex gap-2">
+                    <div class="w-1/2">
+                        <label class="text-[10px] uppercase font-bold text-gray-400">Mulai</label>
+                        <input type="time" id="event-time" class="w-full p-2 border rounded bg-transparent">
+                    </div>
+                    <div id="end-time-container" class="w-1/2">
+                        <label class="text-[10px] uppercase font-bold text-gray-400">Selesai (Opsional)</label>
+                        <input type="time" id="event-time-end" class="w-full p-2 border rounded bg-transparent">
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 py-1">
+                    <input type="checkbox" id="event-full-day" onchange="toggleFullDay(this.checked)">
+                    <label for="event-full-day" class="text-xs text-gray-500">Full Day Event</label>
+                </div>
             </div>
-            <div class="grid grid-cols-2 gap-3 mt-6">
+            <div id="event-footer-btns" class="grid grid-cols-2 gap-3 mt-6">
                 <button onclick="closeModal('modal-add-event')" class="py-2 border rounded text-sm">Batal</button>
                 <button onclick="submitAddEvent()" class="py-2 bg-black dark:bg-white text-white dark:text-black rounded text-sm font-bold">Simpan</button>
             </div>
