@@ -1,11 +1,11 @@
-const CACHE_NAME = 'thesis-tracker-v1';
+const CACHE_NAME = 'thesis-tracker-v2';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './script.js',
   './manifest.json',
   'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap',
-  'https://cdn.tailwindcss.com' 
+  './tailwindcss.js' 
 ];
 
 // 1. Install Service Worker & Cache Assets
