@@ -5,7 +5,7 @@ const ASSETS_TO_CACHE = [
   './script.js',
   './manifest.json',
   'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap',
-  './tailwindcss.js' 
+  './tailwind.js' 
 ];
 
 // 1. Install Service Worker & Cache Assets
